@@ -74,5 +74,13 @@
     <string name="confirm_pwd_not_equal">Confirm Password is not equal to New Passwrod.</string>
     <string name="change_pwd_success">Change password success!</string>
     <string name="change_password_fail">Change password failed.</string>
+    <string name="commit_task">Commit Task</string>
+    <string name="is_valid">Is Valid</string>
+    <string name="need_continue_visit">Need Continue Visit</string>
+    <string name="task_report">Report</string>
+    <string name="yes">yes</string>
+    <string name="no">no</string>
+    <string name="commit_task_success">Commit Task Success!</string>
+    <string name="commit_task_failed">Commit Task Failed.</string>
 
 </resources>

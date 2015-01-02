@@ -7,4 +7,9 @@
         android:orderInCategory="100"
         android:showAsAction="always" />
 
+    <item android:id="@+id/action_start_commit"
+        android:title="@string/commit_task"
+        android:orderInCategory="100"
+        android:showAsAction="always" />
+
 </menu>

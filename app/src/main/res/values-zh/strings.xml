@@ -73,5 +73,13 @@
     <string name="confirm_pwd_not_equal">新密码两次输入不一致</string>
     <string name="change_pwd_success">修改密码成功</string>
     <string name="change_password_fail">修改密码失败，请检查原密码或稍候再试</string>
+    <string name="commit_task">提交任务</string>
+    <string name="is_valid">是否有效</string>
+    <string name="need_continue_visit">继续外访</string>
+    <string name="task_report">外访报告</string>
+    <string name="yes">是</string>
+    <string name="no">否</string>
+    <string name="commit_task_success">提交任务成功</string>
+    <string name="commit_task_failed">提交任务失败</string>
 
 </resources>

@@ -3,6 +3,7 @@ package com.talent.taskmanager;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.media.MediaScannerConnection;
@@ -17,24 +18,23 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.coal.black.bc.socket.client.ClientGlobal;
-import com.coal.black.bc.socket.client.handlers.UploadFileHandler;
+import com.coal.black.bc.socket.client.handlers.CommitTaskHandler;
 import com.coal.black.bc.socket.client.handlers.UserTaskStatusChangeHandler;
-import com.coal.black.bc.socket.client.returndto.UploadFileResult;
+import com.coal.black.bc.socket.client.returndto.CommitTaskResult;
 import com.coal.black.bc.socket.client.returndto.UserTaskStatusChangeResult;
 import com.coal.black.bc.socket.common.UserTaskStatusCommon;
 import com.coal.black.bc.socket.dto.TaskDto;
-import com.coal.black.bc.socket.dto.UploadFileDto;
 import com.coal.black.bc.socket.exception.ExceptionBase;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.assist.FailReason;
-import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.talent.taskmanager.dada.UploadFileDao;
 import com.talent.taskmanager.file.FileInfo;
 import com.talent.taskmanager.file.FileOperationUtils;
@@ -66,6 +66,7 @@ public class SingleTaskActivity extends Activity {
 
     private static final int MSG_CHANGE_TASK_STATUS = 1;
     private static final int MSG_UPLOAD_FILE_SUCCEED = 2;
+    public static final int COMMIT_TASK_RESULT = 3;
 
     private Button mBtnCapture = null;
     private Button mBtnSelectImage = null;
@@ -86,10 +87,10 @@ public class SingleTaskActivity extends Activity {
     private AlertDialog mDetailDialog;
     private ProgressDialog mProgressDialog;
     private Toast mToast;
-    private Handler mTaskStatusHandler = new Handler() {
+    private Handler mResultHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            switch(msg.what) {
+            switch (msg.what) {
                 case MSG_CHANGE_TASK_STATUS: {
                     Log.d("acmllaugh1", "handleMessage (line 38): get task result.");
                     Utils.dissmissProgressDialog(mProgressDialog);
@@ -102,7 +103,7 @@ public class SingleTaskActivity extends Activity {
                             }
                             if (msg.arg1 == UserTaskStatusCommon.IN_DEALING) {
                                 Utils.showToast(mToast, getString(R.string.task_accept_success), getApplicationContext());
-
+                                hideStartTaskMenuItem();
                                 enableShowUploadButtons(true);
                             }
                             mTask.setTaskStatus(msg.arg1);
@@ -120,9 +121,24 @@ public class SingleTaskActivity extends Activity {
                 }
                 case MSG_UPLOAD_FILE_SUCCEED:
                     if (msg.obj instanceof Boolean) {
-                        Utils.showToast(mToast, getString((Boolean)msg.obj ? R.string.image_upload_succeed : R.string.audio_upload_succeed), getApplicationContext());
+                        Utils.showToast(mToast, getString((Boolean) msg.obj ? R.string.image_upload_succeed : R.string.audio_upload_succeed), getApplicationContext());
                     }
                     break;
+                case COMMIT_TASK_RESULT:
+                    if (msg.obj instanceof CommitTaskResult) {
+                        CommitTaskResult result = (CommitTaskResult) msg.obj;
+                        if (result.isSuccess()) {
+                            Utils.showToast(mToast, getString(R.string.commit_task_success), SingleTaskActivity.this);
+                            SingleTaskActivity.this.finish();
+                        }else {
+                            Utils.showToast(mToast, getString(R.string.commit_task_failed), SingleTaskActivity.this);
+                            if (result.isBusException()) {
+                                Log.e("acmllaugh1", "commit task failed : " + result.getBusinessErrorCode());
+                            }else {
+                                result.getThrowable().printStackTrace();
+                            }
+                        }
+                    }
             }
         }
     };
@@ -189,8 +205,46 @@ public class SingleTaskActivity extends Activity {
         int id = item.getItemId();
         if (id == R.id.action_start_task) {
             startTask();
+        }else if (id == R.id.action_start_commit) {
+            showCommitTaskDialog();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void showCommitTaskDialog() {
+        final View view = getLayoutInflater().inflate(R.layout.dialog_commit_task, null);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        AlertDialog dialog = builder.setView(view)
+                .setPositiveButton(getString(R.string.confirm), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Switch isValidSwitch = (Switch) view.findViewById(R.id.switch_is_valid);
+                        Switch needVisitAgainSwitch = (Switch) view.findViewById(R.id.switch_continue_visit);
+                        EditText taskCommitEditText = (EditText) view.findViewById(R.id.edit_visit_report);
+                        boolean isVaild = isValidSwitch.isChecked();
+                        boolean needVisitAgain = needVisitAgainSwitch.isChecked();
+                        String taskCommit = taskCommitEditText.getText().toString();
+                        doCommitTask(isVaild, needVisitAgain, taskCommit);
+                    }
+                })
+                .setNegativeButton(getString(R.string.cancel), null).create();
+        dialog.show();
+    }
+
+    private void doCommitTask(final boolean isVaild, final boolean needVisitAgain, final String taskCommit) {
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                CommitTaskHandler handler = new CommitTaskHandler();
+                CommitTaskResult result = handler.commitTask(
+                        mTask.getId(), isVaild, needVisitAgain, taskCommit);
+                Message msg = new Message();
+                msg.what = COMMIT_TASK_RESULT;
+                msg.obj = result;
+                mResultHandler.sendMessage(msg);
+            }
+        });
+        thread.start();
     }
 
     private void startTask() {
@@ -223,7 +277,7 @@ public class SingleTaskActivity extends Activity {
                 msg.obj = result;
                 msg.arg1 = targetStatus;
                 Log.d("acmllaugh1", "run (line 128): result : " + result.isSuccess());
-                mTaskStatusHandler.sendMessage(msg);
+                mResultHandler.sendMessage(msg);
             }
         });
         changeTaskStatusThread.start();
@@ -255,16 +309,34 @@ public class SingleTaskActivity extends Activity {
         switch (mTask.getUserTaskStatus()) {
             case UserTaskStatusCommon.NOT_READ:
                 changeTaskStatus(UserTaskStatusCommon.HAS_READED);
+                hideCommitTaskMenuItem();
+                break;
+            case UserTaskStatusCommon.HAS_READED:
+                hideCommitTaskMenuItem();
                 break;
             case UserTaskStatusCommon.IN_DEALING:
-                int count = mMenu.size();
-                for (int i = 0; i < count; i++) {
-                    MenuItem item = mMenu.getItem(i);
-                    if (item.getItemId() == R.id.action_start_task) {
-                        item.setVisible(false);
-                    }
-                }
+                hideStartTaskMenuItem();
                 break;
+        }
+    }
+
+    private void hideStartTaskMenuItem() {
+        int count = mMenu.size();
+        for (int i = 0; i < count; i++) {
+            MenuItem item = mMenu.getItem(i);
+            if (item.getItemId() == R.id.action_start_task) {
+                item.setVisible(false);
+            }
+        }
+    }
+
+    private void hideCommitTaskMenuItem() {
+        int count = mMenu.size();
+        for (int i = 0; i < count; i++) {
+            MenuItem item = mMenu.getItem(i);
+            if (item.getItemId() == R.id.action_start_commit) {
+                item.setVisible(false);
+            }
         }
     }
 
@@ -415,7 +487,7 @@ public class SingleTaskActivity extends Activity {
             final String newPath = mTaskFilePath + "/" + name;
             FileOperationUtils.saveBitmapToFile(bitmap, newPath);
             MediaScannerConnection.scanFile(getApplication(),
-                    new String[] { mTaskFilePath }, null, null);
+                    new String[]{mTaskFilePath}, null, null);
             Log.d("Chris", "selectImageResult, path = " + newPath);
             mGridImages.addView(createImageView(newPath), mGridImages.getChildCount());
             // upload image to server
@@ -423,7 +495,7 @@ public class SingleTaskActivity extends Activity {
             mFileInfo.setPicture(true);
             startUploadFile(mFileInfo);
         } else {
-            Utils.showToast(mToast,getString(R.string.invalid_image), getApplicationContext());
+            Utils.showToast(mToast, getString(R.string.invalid_image), getApplicationContext());
         }
     }
 
@@ -436,7 +508,7 @@ public class SingleTaskActivity extends Activity {
         File newFile = new File(newPath);
         oldFile.renameTo(newFile);
         MediaScannerConnection.scanFile(getApplication(),
-                new String[] { mTaskFilePath }, null, null);
+                new String[]{mTaskFilePath}, null, null);
         mGridAudios.addView(createAudioView(newPath), mGridAudios.getChildCount());
         Log.d("Chris", "recordAudioResult, path = " + newPath);
 
@@ -454,7 +526,7 @@ public class SingleTaskActivity extends Activity {
                     + Utils.getAudioName(System.currentTimeMillis());
             FileOperationUtils.copyFile(oldPath, newPath);
             MediaScannerConnection.scanFile(getApplication(),
-                    new String[] { mTaskFilePath }, null, null);
+                    new String[]{mTaskFilePath}, null, null);
 
             mGridAudios.addView(createAudioView(newPath), mGridAudios.getChildCount());
             Log.d("Chris", "selectAudioResult, path = " + newPath);
@@ -463,7 +535,7 @@ public class SingleTaskActivity extends Activity {
             mFileInfo.setPicture(false);
             startUploadFile(mFileInfo);
         } else {
-            Utils.showToast(mToast,getString(R.string.invalid_audio), getApplicationContext());
+            Utils.showToast(mToast, getString(R.string.invalid_audio), getApplicationContext());
         }
     }
 
@@ -550,7 +622,7 @@ public class SingleTaskActivity extends Activity {
             Message msg = new Message();
             msg.what = MSG_UPLOAD_FILE_SUCCEED;
             msg.obj = fileInfo.isPicture();
-            mTaskStatusHandler.sendMessage(msg);
+            mResultHandler.sendMessage(msg);
             // set result to 1 as finished
             fileInfo.setUploadResult(1);
             mUploadFileDao.insertUploadFileInfo(fileInfo);

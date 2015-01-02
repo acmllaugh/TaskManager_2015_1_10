@@ -63,7 +63,8 @@
 
         <activity
             android:name="com.talent.taskmanager.SingleTaskActivity"
-            android:label="@string/title_activity_single_task" >
+            android:label="@string/title_activity_single_task"
+            android:screenOrientation="portrait">
         </activity>
     </application>
 
