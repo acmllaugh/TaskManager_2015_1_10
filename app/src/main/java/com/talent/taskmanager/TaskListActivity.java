@@ -157,6 +157,7 @@ public class TaskListActivity extends Activity {
                 Intent intent = new Intent(TaskListActivity.this,
                         SingleTaskActivity.class);
                 startActivity(intent);
+                overridePendingTransition(R.anim.single_task_in, R.anim.tasklist_out);
             }
         });
         ImageLoaderUtil.initImageLoader(getApplicationContext());

@@ -125,10 +125,12 @@ public class SingleTaskActivity extends Activity {
                     }
                     break;
                 case COMMIT_TASK_RESULT:
+                    Utils.dissmissProgressDialog(mProgressDialog);
                     if (msg.obj instanceof CommitTaskResult) {
                         CommitTaskResult result = (CommitTaskResult) msg.obj;
                         if (result.isSuccess()) {
                             Utils.showToast(mToast, getString(R.string.commit_task_success), SingleTaskActivity.this);
+                            //Since task is committed, we don't want user to update more materials, so we finish this single task activity.
                             SingleTaskActivity.this.finish();
                         }else {
                             Utils.showToast(mToast, getString(R.string.commit_task_failed), SingleTaskActivity.this);
@@ -244,6 +246,7 @@ public class SingleTaskActivity extends Activity {
                 mResultHandler.sendMessage(msg);
             }
         });
+        mProgressDialog = Utils.showProgressDialog(mProgressDialog, this);
         thread.start();
     }
 
