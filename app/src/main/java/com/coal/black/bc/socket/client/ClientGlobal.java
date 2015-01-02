@@ -5,8 +5,8 @@ import java.net.SocketAddress;
 import com.coal.black.bc.socket.utils.CommonUtils;
 
 public class ClientGlobal {
-	private static String serverIp = "127.0.0.1";
-	// public static String serverIp = "223.68.133.15";
+	//private static String serverIp = "127.0.0.1";
+	public static String serverIp = "223.68.133.15";
 	private static int serverPort = 12323;
 	private static int socketTimeOut = 30000;
 

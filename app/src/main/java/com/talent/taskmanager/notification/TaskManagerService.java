@@ -187,7 +187,7 @@ public class TaskManagerService extends Service {
             SignInDto dto = new SignInDto();
             Location location = mLocationManager.getCurrentLocation();
             if (location == null) {
-                Log.d("acmllaugh1", "updateLocationInformation (line 120): location is null. user id is : " + ClientGlobal.userId);
+                Log.d("acmllaugh1", "updateLocationInformation (line 120): location is null. user id is : " + ClientGlobal.getUserId());
                 return;
             }
             dto.setLatitude(location.getLatitude());
@@ -195,7 +195,7 @@ public class TaskManagerService extends Service {
             dto.setTime(System.currentTimeMillis());
             dto.setType(SignInType.ReportPosition);
             mRecordedLocations.add(dto);
-            Log.d("acmllaugh1", "update location. Current userid ; " + ClientGlobal.userId);
+            Log.d("acmllaugh1", "update location. Current userid ; " + ClientGlobal.getUserId());
             SignInResult result = mLocationHandler.signIn(mRecordedLocations);
             if (result.isSuccess()) {
                 mRecordedLocations.clear();
@@ -217,7 +217,7 @@ public class TaskManagerService extends Service {
         mPrefs = getSharedPreferences(Constants.TASK_MANAGER, MODE_PRIVATE);
         mUserID = mPrefs.getInt(Constants.SAVED_USER_ID, -1);
         if (mUserID != -1 && mUserID != 0) {
-            ClientGlobal.userId = mUserID;
+            ClientGlobal.setUserId(mUserID);
         }else{
             this.stopSelf();
         }

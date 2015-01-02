@@ -13,16 +13,19 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import com.coal.black.bc.socket.client.ClientGlobal;
+import com.coal.black.bc.socket.client.handlers.ChangePwdHandler;
 import com.coal.black.bc.socket.client.handlers.UserSignHandler;
-import com.coal.black.bc.socket.client.returndto.LoginResult;
+import com.coal.black.bc.socket.client.returndto.ChangePwdResult;
 import com.coal.black.bc.socket.client.returndto.SignInResult;
 import com.coal.black.bc.socket.dto.SignInDto;
 import com.coal.black.bc.socket.dto.TaskDto;
@@ -41,6 +44,7 @@ import de.greenrobot.event.EventBus;
 public class TaskListActivity extends Activity {
 
     private static final int SIGN_IN_RESULT = 1;
+    public static final int CHANGE_PASSWORD_RESULT = 2;
     LoaderManager.LoaderCallbacks mTaskLoaderCallback;
     private ListView mTaskListView;
     private TaskListAdapter mTaskListAdapter;
@@ -51,7 +55,7 @@ public class TaskListActivity extends Activity {
     private ProgressDialog mProcessingDialog;
     private LocationManager mLocationManager;
     private Toast mToast = null;
-    private Handler mHandler = new Handler() {
+    private Handler mResultHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
@@ -67,6 +71,34 @@ public class TaskListActivity extends Activity {
                         Log.d("acmllaugh1", "handleMessage (line 65): not available sign in result object.");
                     }
                     break;
+                case CHANGE_PASSWORD_RESULT:
+                    if (msg.obj instanceof ChangePwdResult) {
+                        Utils.dissmissProgressDialog(mProcessingDialog);
+                        ChangePwdResult result = (ChangePwdResult) msg.obj;
+                        if (result.isSuccess()) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Utils.showToast(mToast, getString(R.string.change_pwd_success), TaskListActivity.this);
+                                }
+                            });
+                        } else {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Utils.showToast(mToast, getString(R.string.change_password_fail), TaskListActivity.this);
+                                }
+                            });
+                            if (result.isBusException()) {
+                                Log.e("acmllaugh1", "Change password bussiness exception : " + result.getBusinessErrorCode());
+                            } else {
+                                Log.e("acmllaugh1", "Change password other exception : " + result.getThrowable());
+                                result.getThrowable().printStackTrace();
+                            }
+                        }
+                        break;
+                    }
+
             }
         }
     };
@@ -137,7 +169,7 @@ public class TaskListActivity extends Activity {
             Log.d("acmllaugh1", "initVariables (line 76): userid is -1, quit activity.");
             this.finish();
         } else {
-            ClientGlobal.userId = mUserID;
+            ClientGlobal.setUserId(mUserID);
             Log.d("acmllaugh1", "initUserIDFromIntent (line 99): login successful, welcome");
         }
     }
@@ -178,11 +210,78 @@ public class TaskListActivity extends Activity {
             case R.id.action_refresh:
                 loadTasks();
                 break;
-        }
-        if (id == R.id.action_sign_in) {
-
+            case R.id.action_change_password:
+                showPasswordChangeDialog();
+                break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void showPasswordChangeDialog() {
+        LayoutInflater inflater = getLayoutInflater();
+        View view = inflater.inflate(R.layout.dialog_change_password, null);
+        final EditText passwordEditText = (EditText) view.findViewById(R.id.edit_current_password);
+        final EditText newPasswordEditText = (EditText) view.findViewById(R.id.edit_new_password);
+        final EditText confirmPasswordEditText = (EditText) view.findViewById(R.id.edit_confirm_password);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        final AlertDialog dialog = builder.setCancelable(false).setTitle(getString(R.string.change_password))
+                .setView(view).setPositiveButton(getString(R.string.confirm), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        //Do nothing here because we override this button later to change the close behaviour.
+                    }
+                }).setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        }).create();
+        dialog.show();
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final String password = passwordEditText.getText().toString();
+                final String newPassword = newPasswordEditText.getText().toString();
+                String confirmPassword = confirmPasswordEditText.getText().toString();
+                if (checkContent(password, newPassword, confirmPassword)) {
+                    doChangePassword(password, newPassword);
+                    dialog.dismiss();
+                }
+            }
+            private boolean checkContent(String password, String newPassword, String confirmPassword) {
+                //TODO: Check password length.
+                if (password.isEmpty()) {
+                    Utils.showToast(mToast, getString(R.string.password_cannot_empty), TaskListActivity.this);
+                    return false;
+                }
+                if (newPassword.isEmpty()) {
+                    Utils.showToast(mToast, getString(R.string.new_pwd_cannot_empty), TaskListActivity.this);
+                    return false;
+                }
+                if (!newPassword.equals(confirmPassword)) {
+                    Utils.showToast(mToast, getString(R.string.confirm_pwd_not_equal), TaskListActivity.this);
+                    return false;
+                }
+                return true;
+            }
+        });
+
+    }
+
+    private void doChangePassword(final String password, final String newPassword) {
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                ChangePwdHandler handler = new ChangePwdHandler();
+                ChangePwdResult result = handler.changePwd(password, newPassword);
+                Message msg = new Message();
+                msg.what = CHANGE_PASSWORD_RESULT;
+                msg.obj = result;
+                mResultHandler.sendMessage(msg);
+            }
+        });
+        mProcessingDialog = Utils.showProgressDialog(mProcessingDialog, this);
+        thread.start();
     }
 
     private void confirmLogout() {
@@ -252,7 +351,7 @@ public class TaskListActivity extends Activity {
         Message msg = new Message();
         msg.what = SIGN_IN_RESULT;
         msg.obj = result;
-        mHandler.sendMessage(msg);
+        mResultHandler.sendMessage(msg);
     }
 
     public ProgressLayout getProgressLayout() {

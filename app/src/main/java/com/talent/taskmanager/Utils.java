@@ -137,8 +137,7 @@ public class Utils {
             editor.putString(Constants.MAC_ADDRESS, macAddress);
             editor.apply();
         }
-        ClientGlobal.macStr = macAddress;
-        ClientGlobal.macBytes = CommonUtils.macString2Bytes(macAddress);
+        ClientGlobal.setMacAddress(macAddress);
     }
 
     /**

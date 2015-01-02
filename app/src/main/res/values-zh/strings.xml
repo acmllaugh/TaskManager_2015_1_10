@@ -64,5 +64,14 @@
     <string name="sd_card_not_available">当前存储卡不可用，无法显示图片与声音文件！</string>
     <string name="image_upload_succeed">图片上传成功</string>
     <string name="audio_upload_succeed">录音文件上传成功</string>
+    <string name="change_password">修改密码</string>
+    <string name="current_password">当前密码</string>
+    <string name="new_password">新密码</string>
+    <string name="new_password_confirm">新密码确认</string>
+    <string name="password_cannot_empty">原密码不能为空</string>
+    <string name="new_pwd_cannot_empty">新密码不能为空</string>
+    <string name="confirm_pwd_not_equal">新密码两次输入不一致</string>
+    <string name="change_pwd_success">修改密码成功</string>
+    <string name="change_password_fail">修改密码失败，请检查原密码或稍候再试</string>
 
 </resources>

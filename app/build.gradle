@@ -33,3 +33,9 @@ dependencies {
     compile 'de.greenrobot:eventbus:2.4.0'
     compile files('libs/universal-image-loader-1.9.3.jar')
 }
+
+repositories {
+    jcenter {
+        url "http://jcenter.bintray.com/"
+    }
+}

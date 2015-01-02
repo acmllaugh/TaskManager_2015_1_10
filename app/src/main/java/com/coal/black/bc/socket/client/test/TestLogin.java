@@ -17,6 +17,7 @@ public class TestLogin {
 					System.out.println("Business Exception, exception code is " + loginResult.getBusinessErrorCode());
 				} else {
 					System.out.println("Other Exception, exception type is " + loginResult.getThrowable());
+                    loginResult.getThrowable().printStackTrace();
 				}
 			}
 		}

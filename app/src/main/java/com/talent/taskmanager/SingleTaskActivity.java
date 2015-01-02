@@ -214,7 +214,7 @@ public class SingleTaskActivity extends Activity {
             public void run() {
                 Log.d("acmllaugh1", "run (line 121): start change task status.");
                 Log.d("acmllaugh1", "run (line 124): task id : " + mTask.getId());
-                Log.d("acmllaugh1", "run (line 125): user id : " + ClientGlobal.userId);
+                Log.d("acmllaugh1", "run (line 125): user id : " + ClientGlobal.getUserId());
                 UserTaskStatusChangeHandler handler = new UserTaskStatusChangeHandler();
                 UserTaskStatusChangeResult result = handler.changeUserTaskStatus(
                         mTask.getId(), targetStatus);
@@ -296,7 +296,7 @@ public class SingleTaskActivity extends Activity {
         if (mTask == null)
             return;
 
-        mFileInfo = new FileInfo(ClientGlobal.userId, mTask.getId());
+        mFileInfo = new FileInfo(ClientGlobal.getUserId(), mTask.getId());
         mUploadFileDao = new UploadFileDao(getApplicationContext());
         mUploadListener = new UploadFileListener();
 

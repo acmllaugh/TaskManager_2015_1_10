@@ -17,4 +17,9 @@
         android:orderInCategory="100"
         android:showAsAction="ifRoom" />
 
+    <item android:id="@+id/action_change_password"
+        android:title="@string/change_password"
+        android:orderInCategory="90"
+        android:showAsAction="ifRoom" />
+
 </menu>
