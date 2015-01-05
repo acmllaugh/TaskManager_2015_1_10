@@ -79,6 +79,8 @@ public class SingleTaskActivity extends Activity {
     private UploadFileDao mUploadFileDao = null;
     private UploadFileListener mUploadListener = null;
     public static final String DIRECTORY = Environment.getExternalStorageDirectory() + "/TaskFiles";
+    private Menu mMenu;
+    private ImageLoader mThumbnailLoader;
 
     private EventBus mEventBus = EventBus.getDefault();
     private TaskDto mTask;
@@ -104,6 +106,7 @@ public class SingleTaskActivity extends Activity {
                             if (msg.arg1 == UserTaskStatusCommon.IN_DEALING) {
                                 Utils.showToast(mToast, getString(R.string.task_accept_success), getApplicationContext());
                                 hideStartTaskMenuItem();
+                                showCommitTaskMenuItem(true);
                                 enableShowUploadButtons(true);
                             }
                             mTask.setTaskStatus(msg.arg1);
@@ -144,8 +147,6 @@ public class SingleTaskActivity extends Activity {
             }
         }
     };
-    private Menu mMenu;
-    private ImageLoader mThumbnailLoader;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -312,10 +313,10 @@ public class SingleTaskActivity extends Activity {
         switch (mTask.getUserTaskStatus()) {
             case UserTaskStatusCommon.NOT_READ:
                 changeTaskStatus(UserTaskStatusCommon.HAS_READED);
-                hideCommitTaskMenuItem();
+                showCommitTaskMenuItem(false);
                 break;
             case UserTaskStatusCommon.HAS_READED:
-                hideCommitTaskMenuItem();
+                showCommitTaskMenuItem(false);
                 break;
             case UserTaskStatusCommon.IN_DEALING:
                 hideStartTaskMenuItem();
@@ -333,12 +334,12 @@ public class SingleTaskActivity extends Activity {
         }
     }
 
-    private void hideCommitTaskMenuItem() {
+    private void showCommitTaskMenuItem(boolean visiable) {
         int count = mMenu.size();
         for (int i = 0; i < count; i++) {
             MenuItem item = mMenu.getItem(i);
             if (item.getItemId() == R.id.action_start_commit) {
-                item.setVisible(false);
+                item.setVisible(visiable);
             }
         }
     }

@@ -49,7 +49,12 @@ public class TaskObserver {
                         loader.onContentChanged();
                     }
                 } else {
-                    Log.d("acmllaugh1", "refresh task failed." + countResult.getThrowable().getMessage());
+                    if (countResult.getThrowable() != null) {
+                        Log.d("acmllaugh1", "refresh task failed." + countResult.getThrowable().getMessage());
+                    }else{
+                        Log.d("acmllaugh1", "refresh task failed without throwable.");
+                    }
+
                 }
             }
         }

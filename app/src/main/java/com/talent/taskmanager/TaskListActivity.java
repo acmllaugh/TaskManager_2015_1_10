@@ -22,6 +22,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.baidu.location.BDLocation;
 import com.coal.black.bc.socket.client.ClientGlobal;
 import com.coal.black.bc.socket.client.handlers.ChangePwdHandler;
 import com.coal.black.bc.socket.client.handlers.UserSignHandler;
@@ -31,6 +32,7 @@ import com.coal.black.bc.socket.dto.SignInDto;
 import com.coal.black.bc.socket.dto.TaskDto;
 import com.coal.black.bc.socket.enums.SignInType;
 import com.github.androidprogresslayout.ProgressLayout;
+import com.talent.taskmanager.location.BaiduLocationManager;
 import com.talent.taskmanager.location.LocationManager;
 import com.talent.taskmanager.network.NetworkState;
 import com.talent.taskmanager.notification.TaskManagerService;
@@ -54,6 +56,7 @@ public class TaskListActivity extends Activity {
     private int mUserID;
     private ProgressDialog mProcessingDialog;
     private LocationManager mLocationManager;
+    private BaiduLocationManager mBaiduLocationManager;
     private Toast mToast = null;
     private Handler mResultHandler = new Handler() {
         @Override
@@ -141,6 +144,7 @@ public class TaskListActivity extends Activity {
         initUserIDFromIntent();
         mLocationUI = new LocationUI();
         mLocationManager = new LocationManager(this.getApplicationContext(), mLocationUI);
+        mBaiduLocationManager = new BaiduLocationManager(getApplicationContext());
         mTaskListView = (ListView) findViewById(R.id.listview_tasks);
         mProgressLayout = (ProgressLayout) findViewById(R.id.progress_layout);
         mTaskListAdapter = new TaskListAdapter(this.getApplicationContext(),
@@ -329,8 +333,29 @@ public class TaskListActivity extends Activity {
 
     private void doSignIn() {
         SignInDto dto = new SignInDto();
-        Location location = mLocationManager.getCurrentLocation();
-        if (location == null) {
+//        Location location = mLocationManager.getCurrentLocation();
+//        if (location == null) {
+//            Log.d("acmllaugh1", "doSignIn (line 156): location is null.");
+//            Utils.dissmissProgressDialog(mProcessingDialog);
+//            runOnUiThread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    Utils.showToast(mToast, getString(R.string.sign_in_fail),
+//                            TaskListActivity.this.getApplicationContext());
+//                }
+//            });
+//            return;
+//        }
+//        dto.setLatitude(location.getLatitude());
+//        dto.setLongitude(location.getLongitude());
+
+        double latitude, longitude;
+        BDLocation baiduLocation = mBaiduLocationManager.getCurrentLocation();
+        if (baiduLocation != null) {
+            latitude = baiduLocation.getLatitude();
+            longitude = baiduLocation.getLongitude();
+            Log.d("Chris", "Use Baidu location: (" + latitude + ", " + longitude + "), By " + baiduLocation.getLocType());
+        } else {
             Log.d("acmllaugh1", "doSignIn (line 156): location is null.");
             Utils.dissmissProgressDialog(mProcessingDialog);
             runOnUiThread(new Runnable() {
@@ -342,8 +367,9 @@ public class TaskListActivity extends Activity {
             });
             return;
         }
-        dto.setLatitude(location.getLatitude());
-        dto.setLongitude(location.getLongitude());
+        dto.setLatitude(latitude);
+        dto.setLongitude(longitude);
+
         dto.setTime(System.currentTimeMillis());
         dto.setType(SignInType.SignIn);
         ArrayList<SignInDto> signInActionList = new ArrayList<SignInDto>();
@@ -381,6 +407,9 @@ public class TaskListActivity extends Activity {
         super.onResume();
         if (mLocationManager != null)
             mLocationManager.recordLocation(true);
+
+        if (mBaiduLocationManager != null)
+            mBaiduLocationManager.recordLocation(true);
     }
 
     @Override
@@ -388,6 +417,9 @@ public class TaskListActivity extends Activity {
         super.onPause();
         if (mLocationManager != null)
             mLocationManager.recordLocation(false);
+
+        if (mBaiduLocationManager != null)
+            mBaiduLocationManager.recordLocation(false);
     }
 
 

@@ -17,6 +17,7 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.util.Log;
 
+import com.baidu.location.BDLocation;
 import com.coal.black.bc.socket.client.ClientGlobal;
 import com.coal.black.bc.socket.client.handlers.TaskQryUserNewTaskHandler;
 import com.coal.black.bc.socket.client.returndto.TaskQryUserNewTaskCountResult;
@@ -26,6 +27,7 @@ import com.talent.taskmanager.Utils;
 import com.talent.taskmanager.dada.UploadFileDao;
 import com.talent.taskmanager.file.FileInfo;
 import com.talent.taskmanager.file.UploadFileThread;
+import com.talent.taskmanager.location.BaiduLocationManager;
 import com.talent.taskmanager.location.LocationManager;
 import com.coal.black.bc.socket.client.handlers.UserSignHandler;
 import com.coal.black.bc.socket.client.returndto.SignInResult;
@@ -48,6 +50,7 @@ public class TaskManagerService extends Service {
     private StartServiceReceiver mReceiver;
     private ActivityManager mActivityManager;
     private LocationManager mLocationManager;
+    private BaiduLocationManager mBaiduLocationManager;
     private UserSignHandler mLocationHandler;
     private ArrayList<SignInDto> mRecordedLocations;
     private int mUpdateCountDown;
@@ -85,6 +88,7 @@ public class TaskManagerService extends Service {
         mLocationHandler = new UserSignHandler();
         mRecordedLocations = new ArrayList<SignInDto>();
         mLocationManager = new LocationManager(this.getApplicationContext(), null);
+        mBaiduLocationManager = new BaiduLocationManager(getApplicationContext());
         mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mUploadFileDao = new UploadFileDao(getApplicationContext());
         mUploadListener = new UploadFileListener();
@@ -109,6 +113,8 @@ public class TaskManagerService extends Service {
 
     private void startRecordLocation() {
         mLocationManager.recordLocation(true);
+        if (mBaiduLocationManager != null)
+            mBaiduLocationManager.recordLocation(true);
     }
 
     private void stopRecordLocation() {
@@ -116,6 +122,8 @@ public class TaskManagerService extends Service {
             return;
         }
         mLocationManager.recordLocation(false);
+        if (mBaiduLocationManager != null)
+            mBaiduLocationManager.recordLocation(false);
     }
 
     @Override
@@ -185,13 +193,27 @@ public class TaskManagerService extends Service {
             mUpdateCountDown = LOCATION_UPDATE_INTERVAL;
             Log.d("acmllaugh1", "updateLocationInformation (line 169): start upload locations.");
             SignInDto dto = new SignInDto();
-            Location location = mLocationManager.getCurrentLocation();
-            if (location == null) {
+//            Location location = mLocationManager.getCurrentLocation();
+//            if (location == null) {
+//                Log.d("acmllaugh1", "updateLocationInformation (line 120): location is null. user id is : " + ClientGlobal.getUserId());
+//                return;
+//            }
+//            dto.setLatitude(location.getLatitude());
+//            dto.setLongitude(location.getLongitude());
+
+            double latitude, longitude;
+            BDLocation baiduLocation = mBaiduLocationManager.getCurrentLocation();
+            if (baiduLocation != null) {
+                latitude = baiduLocation.getLatitude();
+                longitude = baiduLocation.getLongitude();
+                Log.d("Chris", "Use Baidu location: (" + latitude + ", " + longitude + "), By " + baiduLocation.getLocType());
+            } else {
                 Log.d("acmllaugh1", "updateLocationInformation (line 120): location is null. user id is : " + ClientGlobal.getUserId());
                 return;
             }
-            dto.setLatitude(location.getLatitude());
-            dto.setLongitude(location.getLongitude());
+            dto.setLatitude(latitude);
+            dto.setLongitude(longitude);
+
             dto.setTime(System.currentTimeMillis());
             dto.setType(SignInType.ReportPosition);
             mRecordedLocations.add(dto);
