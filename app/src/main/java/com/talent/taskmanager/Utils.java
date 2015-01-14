@@ -10,11 +10,11 @@ import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Environment;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.coal.black.bc.socket.client.ClientGlobal;
-import com.coal.black.bc.socket.utils.CommonUtils;
 import com.talent.taskmanager.network.NetworkState;
 
 import java.text.SimpleDateFormat;
@@ -36,13 +36,13 @@ public class Utils {
     }
 
     /**
-     *  Check if service is running.
-     * */
-    public static boolean isServiceRunning(Context context, String serviceClassName){
-        final ActivityManager activityManager = (ActivityManager)context.getSystemService(Context.ACTIVITY_SERVICE);
+     * Check if service is running.
+     */
+    public static boolean isServiceRunning(Context context, String serviceClassName) {
+        final ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
         final List<ActivityManager.RunningServiceInfo> services = activityManager.getRunningServices(Integer.MAX_VALUE);
         for (ActivityManager.RunningServiceInfo runningServiceInfo : services) {
-            if (runningServiceInfo.service.getClassName().equals(serviceClassName)){
+            if (runningServiceInfo.service.getClassName().equals(serviceClassName)) {
                 return true;
             }
         }
@@ -58,7 +58,7 @@ public class Utils {
     public static Toast showToast(Toast toast, String message, Context context) {
         if (toast == null) {
             toast = Toast.makeText(context, message, Toast.LENGTH_SHORT);
-        }else {
+        } else {
             toast.setText(message);
         }
         toast.show();
@@ -89,7 +89,7 @@ public class Utils {
 
 
     public static NetworkState getCurrentNetworkState(Context context) {
-        ConnectivityManager cm = (ConnectivityManager)context.getSystemService(context.CONNECTIVITY_SERVICE);
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(context.CONNECTIVITY_SERVICE);
         NetworkInfo mWifi = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
         NetworkInfo mMobile = cm.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
         boolean wifiConnected = false;
@@ -142,6 +142,7 @@ public class Utils {
 
     /**
      * Check if sd card is available
+     *
      * @return
      */
     public static boolean isSDCardAvailable() {
@@ -163,4 +164,16 @@ public class Utils {
         String currentTime = format.format(new Date(time));
         return "Audio_" + currentTime + ".amr";
     }
+
+    public static CharSequence getDateStringFromLong(long lastModified, Context mContext) {
+        return DateFormat.format("yyyy-MM-dd", lastModified);
+    }
+
+    /**
+     * @return true if clock is set to 24-hour mode
+     */
+    public static boolean get24HourMode(final Context context) {
+        return android.text.format.DateFormat.is24HourFormat(context);
+    }
+
 }

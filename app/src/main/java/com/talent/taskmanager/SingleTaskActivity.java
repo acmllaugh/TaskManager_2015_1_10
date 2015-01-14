@@ -223,24 +223,26 @@ public class SingleTaskActivity extends Activity {
                     public void onClick(DialogInterface dialogInterface, int i) {
                         Switch isValidSwitch = (Switch) view.findViewById(R.id.switch_is_valid);
                         Switch needVisitAgainSwitch = (Switch) view.findViewById(R.id.switch_continue_visit);
+                        EditText actualVisitorEditText = (EditText) view.findViewById(R.id.edit_actual_visitor);
                         EditText taskCommitEditText = (EditText) view.findViewById(R.id.edit_visit_report);
                         boolean isVaild = isValidSwitch.isChecked();
                         boolean needVisitAgain = needVisitAgainSwitch.isChecked();
+                        String actualVisitor = actualVisitorEditText.getText().toString();
                         String taskCommit = taskCommitEditText.getText().toString();
-                        doCommitTask(isVaild, needVisitAgain, taskCommit);
+                        doCommitTask(isVaild, needVisitAgain, actualVisitor, taskCommit);
                     }
                 })
                 .setNegativeButton(getString(R.string.cancel), null).create();
         dialog.show();
     }
 
-    private void doCommitTask(final boolean isVaild, final boolean needVisitAgain, final String taskCommit) {
+    private void doCommitTask(final boolean isVaild, final boolean needVisitAgain, final String actualVisitor, final String taskCommit) {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 CommitTaskHandler handler = new CommitTaskHandler();
                 CommitTaskResult result = handler.commitTask(
-                        mTask.getId(), isVaild, needVisitAgain, taskCommit);
+                        mTask.getId(), isVaild, needVisitAgain, taskCommit, actualVisitor, mTask.getTaskFlowTimes());
                 Message msg = new Message();
                 msg.what = COMMIT_TASK_RESULT;
                 msg.obj = result;
@@ -275,7 +277,7 @@ public class SingleTaskActivity extends Activity {
                 Log.d("acmllaugh1", "run (line 125): user id : " + ClientGlobal.getUserId());
                 UserTaskStatusChangeHandler handler = new UserTaskStatusChangeHandler();
                 UserTaskStatusChangeResult result = handler.changeUserTaskStatus(
-                        mTask.getId(), targetStatus);
+                        mTask.getId(), targetStatus, mTask.getTaskFlowTimes());
                 Message msg = new Message();
                 msg.what = MSG_CHANGE_TASK_STATUS;
                 msg.obj = result;
@@ -479,6 +481,7 @@ public class SingleTaskActivity extends Activity {
         // upload image to server
         mFileInfo.setFilePath(path);
         mFileInfo.setPicture(true);
+        mFileInfo.setTaskFlowTimes(mTask.getTaskFlowTimes());
         startUploadFile(mFileInfo);
     }
 
@@ -497,6 +500,7 @@ public class SingleTaskActivity extends Activity {
             // upload image to server
             mFileInfo.setFilePath(newPath);
             mFileInfo.setPicture(true);
+            mFileInfo.setTaskFlowTimes(mTask.getTaskFlowTimes());
             startUploadFile(mFileInfo);
         } else {
             Utils.showToast(mToast, getString(R.string.invalid_image), getApplicationContext());
@@ -519,6 +523,7 @@ public class SingleTaskActivity extends Activity {
         // upload audio to server
         mFileInfo.setFilePath(newPath);
         mFileInfo.setPicture(false);
+        mFileInfo.setTaskFlowTimes(mTask.getTaskFlowTimes());
         startUploadFile(mFileInfo);
     }
 
@@ -537,6 +542,7 @@ public class SingleTaskActivity extends Activity {
             // upload audio to server
             mFileInfo.setFilePath(newPath);
             mFileInfo.setPicture(false);
+            mFileInfo.setTaskFlowTimes(mTask.getTaskFlowTimes());
             startUploadFile(mFileInfo);
         } else {
             Utils.showToast(mToast, getString(R.string.invalid_audio), getApplicationContext());

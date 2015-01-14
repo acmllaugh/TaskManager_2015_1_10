@@ -9,8 +9,8 @@ android {
         applicationId "com.talent.taskmanager"
         minSdkVersion 15
         targetSdkVersion 20
-        versionCode 1
-        versionName "1.0.0_20141231"
+        versionCode 2
+        versionName "1.0.0_20150112"
     }
 
     lintOptions {

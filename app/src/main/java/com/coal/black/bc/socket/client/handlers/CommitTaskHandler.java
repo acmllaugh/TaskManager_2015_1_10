@@ -11,7 +11,7 @@ import com.coal.black.bc.socket.dto.CommitTaskDto;
 import com.coal.black.bc.socket.enums.OperateType;
 
 public class CommitTaskHandler {
-	public CommitTaskResult commitTask(int taskId, boolean isValid, boolean needVisitAgain, String visitReport) {
+	public CommitTaskResult commitTask(int taskId, boolean isValid, boolean needVisitAgain, String visitReport, String realVisitUser, int taskFlowTimes) {
 		List<IDtoBase> lists = new ArrayList<IDtoBase>();
 
 		CommitTaskDto dto = new CommitTaskDto();
@@ -19,6 +19,8 @@ public class CommitTaskHandler {
 		dto.setValid(isValid);
 		dto.setNeedVisitAgain(needVisitAgain);
 		dto.setVisitReport(visitReport);
+		dto.setTaskFlowTimes(taskFlowTimes);
+		dto.setRealVisitUser(realVisitUser);
 
 		lists.add(dto);
 

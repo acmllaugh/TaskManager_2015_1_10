@@ -5,18 +5,15 @@ import java.io.File;
 import com.coal.black.bc.socket.client.ClientGlobal;
 import com.coal.black.bc.socket.client.handlers.UploadFileHandler;
 import com.coal.black.bc.socket.client.returndto.UploadFileResult;
-import com.coal.black.bc.socket.dto.UploadFileDto;
 
 public class TestUploadFile {
 	public static void main(String[] args) {
-		File f = new File("D:\\Desert.jpg");
-		UploadFileDto fileDto = new UploadFileDto();
-		fileDto.setClientFile(f);
-		fileDto.setTaskId(1);
-		fileDto.setPicture(false);
+		// ClientGlobal.setUserId(16);
+		// ClientGlobal.setMacAddress("EC:CB:30:D6:1E:0C");
 		ClientGlobal.setUserId(11);
+		File f = new File("D:\\Wildlife.wmv");
 		UploadFileHandler uh = new UploadFileHandler();
-		UploadFileResult result = uh.upload(fileDto);
+		UploadFileResult result = uh.upload(f, 3, 1, false);
 		if (result.isSuccess()) {
 			System.out.println("Success, result is " + result.isUploadSuccess());
 		} else {

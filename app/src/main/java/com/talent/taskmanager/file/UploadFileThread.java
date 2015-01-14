@@ -55,12 +55,12 @@ public class UploadFileThread extends Thread {
 
     public void upLoadFile(FileInfo fileInfo) {
         File f = new File(fileInfo.getFilePath());
-        UploadFileDto fileDto = new UploadFileDto();
-        fileDto.setClientFile(f);
-        fileDto.setTaskId(fileInfo.getTaskId());
-        fileDto.setPicture(fileInfo.isPicture());
+//        UploadFileDto fileDto = new UploadFileDto();
+//        fileDto.setClientFile(f);
+//        fileDto.setTaskId(fileInfo.getTaskId());
+//        fileDto.setPicture(fileInfo.isPicture());
         UploadFileHandler uh = new UploadFileHandler();
-        UploadFileResult result = uh.upload(fileDto);
+        UploadFileResult result = uh.upload(f, fileInfo.getTaskId(), fileInfo.getTaskFlowTimes(), fileInfo.isPicture());
         Message msg = new Message();
         if (result.isSuccess()) {
             if (mListener != null) {

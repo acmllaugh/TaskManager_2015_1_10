@@ -57,7 +57,7 @@ public class UploadFileDao {
             String filePath = cursor.getString(cursor.getColumnIndex(DBHelper.FIELD_FILE_PATH));
             boolean isPicture = cursor.getInt(cursor.getColumnIndex(DBHelper.FIELD_IS_PICTURE)) == 1 ? true : false;
             int uploadResult = cursor.getInt(cursor.getColumnIndex(DBHelper.FIELD_RESULT));
-            fileInfo = new FileInfo(userId, taskId, filePath, isPicture, uploadResult);
+            fileInfo = new FileInfo(userId, taskId, filePath, isPicture, uploadResult, 1);
             Log.d("Chris", "getUnfinishedFiles, unFinished file: " + fileInfo.toString());
         } else {
             Log.d("Chris", "getUnfinishedFiles, null");

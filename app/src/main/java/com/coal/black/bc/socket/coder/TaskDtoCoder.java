@@ -33,7 +33,6 @@ public class TaskDtoCoder {
 
 			writeStringData(task.getNoticeStatement(), dout);// 催款状态
 			writeStringData(task.getAddress(), dout);// 写入地址
-			writeStringData(task.getRegion(), dout);// 写入地区
 
 			writeIntegerData(task.getVisitTimes(), dout);// 写入访问次数
 
@@ -42,19 +41,23 @@ public class TaskDtoCoder {
 			writeStringData(task.getMemo(), dout);// 写入备注
 			writeStringData(task.getContactInfo(), dout);// 写入所有联系方式
 			writeStringData(task.getCompanyName(), dout);// 写入公司名称
-			writeStringData(task.getVisitReport(), dout);// 写入访问报告
 
-			writeDate(task.getEstimateVisitDate(), dout);// 写入预计访问日期
-			writeDate(task.getRealVisitDate(), dout);// 写入实际访问日期
-			writeDate(task.getReturnTime(), dout);// 写入实际返回时间
+			writeStringData(task.getEstimateVisitDate(), dout);// 写入预计访问日期
 
-			writeIntegerData(task.getRealVisitUser(), dout);// 写入实际访问人
-			writeBooleanData(task.isValid(), dout);// 写入状态信息
 			writeIntegerData(task.getTaskStatus(), dout);// 写入实际访问人
 			writeIntegerData(task.getUserTaskStatus(), dout);// 写入实际访问人
 
 			writeLongData(task.getGrantTime(), dout);// 授权时间
 			writeLongData(task.getOperateTime(), dout);// 操作时间
+
+			writeStringData(task.getProvince(), dout);// 写入省份
+			writeStringData(task.getCity(), dout);// 写入城市
+			writeStringData(task.getRegion(), dout);// 写入地区
+			writeBooleanData(task.isUrgent(), dout);// 是否是紧急的
+
+			writeLongData(task.getBusinessID(), dout);// 写入业务ID
+
+			writeIntegerData(task.getTaskFlowTimes(), dout);// 写入TaskFlowTimes
 		} catch (IOException ex) {
 			throw new BusinessException(Constants.TASK_CODER_TO_WIRE_ERROR, ex);
 		}
@@ -86,7 +89,6 @@ public class TaskDtoCoder {
 
 			taskDto.setNoticeStatement(getStringData(din));// 读取催款状态
 			taskDto.setAddress(getStringData(din));// 读取地址
-			taskDto.setRegion(getStringData(din));// 写入地区
 
 			int visitedTimes = din.readInt();
 			taskDto.setVisitTimes(visitedTimes);
@@ -96,18 +98,22 @@ public class TaskDtoCoder {
 			taskDto.setMemo(getStringData(din));// 读取备注
 			taskDto.setContactInfo(getStringData(din));// 读取所有联系方式
 			taskDto.setCompanyName(getStringData(din));// 读取公司名称
-			taskDto.setVisitReport(getStringData(din));// 读取访问报告
 
-			taskDto.setEstimateVisitDate(readDate(din));// 读取预计访问日期
-			taskDto.setRealVisitDate(readDate(din));// 读取实际访问日期
-			taskDto.setReturnTime(readDate(din));// 读取实际返回时间
+			taskDto.setEstimateVisitDate(getStringData(din));// 读取预计访问日期
 
-			taskDto.setRealVisitUser(din.readInt());// 读取实际访问人
-			taskDto.setValid(din.readBoolean());// 读取是否有效
 			taskDto.setTaskStatus(din.readInt());// 设置任务的状态
 			taskDto.setUserTaskStatus(din.readInt());// 设置用户任务状态
 			taskDto.setGrantTime(din.readLong());
 			taskDto.setOperateTime(din.readLong());
+
+			taskDto.setProvince(getStringData(din));
+			taskDto.setCity(getStringData(din));
+			taskDto.setRegion(getStringData(din));
+			taskDto.setUrgent(din.readBoolean());// 设置是否加急
+
+			taskDto.setBusinessID(din.readLong());// 设置业务ID
+
+			taskDto.setTaskFlowTimes(din.readInt());// 读取是否加急
 		} catch (IOException ex) {
 			throw new BusinessException(Constants.TASK_CODER_FORM_WIRE_ERROR, ex);
 		}
@@ -127,6 +133,7 @@ public class TaskDtoCoder {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	private static void writeDate(Date date, DataOutputStream dout) throws IOException {
 		long time = 0;
 		if (date != null) {
@@ -177,6 +184,7 @@ public class TaskDtoCoder {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	private static Date readDate(DataInputStream din) throws IOException {
 		long time = din.readLong();
 		if (time <= 0) {

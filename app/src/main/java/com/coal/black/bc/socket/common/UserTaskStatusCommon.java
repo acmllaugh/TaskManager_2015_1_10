@@ -12,4 +12,5 @@ public class UserTaskStatusCommon {
 	public static final int IN_DEALING = 3;// 处理中
 	public static final int HAS_COMMITED = 4;// 已经提交
 	public static final int HAS_FINISHED = 5;// 已结束
+	public static final int ROLL_BACK = 6;// 表示已经回退当前任务
 }

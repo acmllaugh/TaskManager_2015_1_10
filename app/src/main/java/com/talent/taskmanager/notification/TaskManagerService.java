@@ -283,6 +283,8 @@ public class TaskManagerService extends Service {
             mUploadFileCountDown = UPLOAD_FILE_QUERY_INTERVAL;
             Log.d("Chris", "check to upload unfinished files");
             FileInfo fileInfo = mUploadFileDao.getUnfinishedFiles();
+            //TODO: Check out what task flow times mean.
+            fileInfo.setTaskFlowTimes(1);
             if (fileInfo != null) {
                 UploadFileThread uploadFileThread = new UploadFileThread(fileInfo, getApplicationContext());
                 uploadFileThread.setListener(mUploadListener);

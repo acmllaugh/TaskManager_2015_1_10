@@ -1,5 +1,6 @@
 package com.coal.black.bc.socket.client.handlers;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,10 +16,16 @@ public class UploadFileHandler {
 	public boolean uploadedFinished = false;// 传输是否已经完成，主要是用来记录服务器端接收的情况的，这样可以让另外一个线程获取到目前的进展
 	public int serverReceivedLength = 0;// 服务器端接收到的长度，主要是用来记录服务器端接收的情况的，这样可以让另外一个线程获取到目前的进展
 
-	public UploadFileResult upload(UploadFileDto uploadDto) {
+	public UploadFileResult upload(File clientFile, int taskId, int taskFlowTimes, boolean isPicture) {
+		UploadFileDto fileDto = new UploadFileDto();
+		fileDto.setClientFile(clientFile);
+		fileDto.setTaskId(taskId);
+		fileDto.setPicture(isPicture);
+		fileDto.setTaskFlowTimes(taskFlowTimes);
+
 		SocketClient client = new SocketClient();
 		List<IDtoBase> list = new ArrayList<IDtoBase>();
-		list.add(uploadDto);
+		list.add(fileDto);
 		BasicResult result = client.deal(OperateType.UploadFile, ClientGlobal.getUserId(), list, this);
 		if (result instanceof UploadFileResult) {
 			return (UploadFileResult) result;

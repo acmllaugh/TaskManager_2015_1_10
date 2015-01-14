@@ -8,6 +8,7 @@ public class UserTaskStatusChangeDto extends IDtoBase {
 	private int taskId;
 	private int userId;
 	private int userTaskStatus;
+	private int taskFlowTimes;// 流程的处理次数
 
 	public int getTaskId() {
 		return taskId;
@@ -31,5 +32,13 @@ public class UserTaskStatusChangeDto extends IDtoBase {
 
 	public void setUserTaskStatus(int userTaskStatus) {
 		this.userTaskStatus = userTaskStatus;
+	}
+
+	public int getTaskFlowTimes() {
+		return taskFlowTimes;
+	}
+
+	public void setTaskFlowTimes(int taskFlowTimes) {
+		this.taskFlowTimes = taskFlowTimes;
 	}
 }

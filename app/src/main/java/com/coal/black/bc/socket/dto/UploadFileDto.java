@@ -10,6 +10,7 @@ public class UploadFileDto extends IDtoBase {
 	private File clientFile;
 
 	private int taskId;
+	private int taskFlowTimes;
 	private String fileName;
 	private int fileLength;
 	private boolean isPicture;
@@ -46,6 +47,14 @@ public class UploadFileDto extends IDtoBase {
 
 	public void setTaskId(int taskId) {
 		this.taskId = taskId;
+	}
+
+	public int getTaskFlowTimes() {
+		return taskFlowTimes;
+	}
+
+	public void setTaskFlowTimes(int taskFlowTimes) {
+		this.taskFlowTimes = taskFlowTimes;
 	}
 
 	public boolean isPicture() {

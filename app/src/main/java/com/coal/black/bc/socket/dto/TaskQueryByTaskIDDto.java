@@ -6,6 +6,7 @@ public class TaskQueryByTaskIDDto extends IDtoBase {
 	private static final long serialVersionUID = -6831321620186248106L;
 
 	private int taskId;
+	private int taskFlowTimes;
 
 	public int getTaskId() {
 		return taskId;
@@ -15,4 +16,11 @@ public class TaskQueryByTaskIDDto extends IDtoBase {
 		this.taskId = taskId;
 	}
 
+	public int getTaskFlowTimes() {
+		return taskFlowTimes;
+	}
+
+	public void setTaskFlowTimes(int taskFlowTimes) {
+		this.taskFlowTimes = taskFlowTimes;
+	}
 }

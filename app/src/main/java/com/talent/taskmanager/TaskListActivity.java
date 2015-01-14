@@ -157,6 +157,7 @@ public class TaskListActivity extends Activity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 TaskDto task = (TaskDto) adapterView.getAdapter().getItem(i);
+                if(task == null)return;
                 mEventBus.postSticky(task);
                 Intent intent = new Intent(TaskListActivity.this,
                         SingleTaskActivity.class);

@@ -8,7 +8,7 @@ public class TestChangePwd {
 	public static void main(String[] args) {
 		ClientGlobal.setUserId(11);
 		ClientGlobal.setMacAddress("7C:E9:D3:EF:FA:10");
-		String oldPwd = "654321";
+		String oldPwd = "123456";
 		String newPwd = "654321";
 		ChangePwdHandler handler = new ChangePwdHandler();
 		ChangePwdResult result = handler.changePwd(oldPwd, newPwd);

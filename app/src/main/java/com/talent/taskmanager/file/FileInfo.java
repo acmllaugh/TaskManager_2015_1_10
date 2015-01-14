@@ -9,18 +9,20 @@ public class FileInfo {
     private String filePath;
     private boolean isPicture;
     private int uploadResult;
+    private int taskFlowTimes;
 
     public FileInfo(int userId, int taskId) {
         this.userId = userId;
         this.taskId = taskId;
     }
 
-    public FileInfo(int userId, int taskId, String filePath, boolean isPicture, int uploadResult) {
+    public FileInfo(int userId, int taskId, String filePath, boolean isPicture, int uploadResult, int taskFlowTimes) {
         this.userId = userId;
         this.taskId = taskId;
         this.filePath = filePath;
         this.isPicture = isPicture;
         this.uploadResult = uploadResult;
+        this.taskFlowTimes = taskFlowTimes;
     }
 
     public int getUserId() {
@@ -63,6 +65,14 @@ public class FileInfo {
         this.uploadResult = uploadResult;
     }
 
+    public int getTaskFlowTimes() {
+        return taskFlowTimes;
+    }
+
+    public void setTaskFlowTimes(int taskFlowTimes) {
+        this.taskFlowTimes = taskFlowTimes;
+    }
+
     @Override
     public String toString() {
         return "FileInfo{" +
@@ -71,6 +81,7 @@ public class FileInfo {
                 ", filePath='" + filePath + '\'' +
                 ", isPicture=" + isPicture +
                 ", uploadResult=" + uploadResult +
+                ", taskFlowTimes=" + taskFlowTimes +
                 '}';
     }
 }

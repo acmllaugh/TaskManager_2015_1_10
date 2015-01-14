@@ -1,7 +1,5 @@
 package com.coal.black.bc.socket.dto;
 
-import java.util.Date;
-
 import com.coal.black.bc.socket.IDtoBase;
 
 public class TaskDto extends IDtoBase {
@@ -16,23 +14,23 @@ public class TaskDto extends IDtoBase {
 	private double hasPayed = 0;
 	private String noticeStatement;
 	private String address;
-	private String region;
 	private Integer visitTimes = 0;
 	private String visitReason;
 	private String requirement;
 	private String memo;
 	private String contactInfo;
 	private String companyName;
-	private String visitReport;
-	private Date estimateVisitDate;
-	private Date realVisitDate;
-	private Date returnTime;
-	private Integer realVisitUser = 0;
-	private boolean isValid = false;
+	private String estimateVisitDate;
+	private String province;// 省
+	private String city;// 市
+	private String region;// 区
+	private boolean isUrgent = false;// 是否加急
 	private Integer taskStatus = 0;
 	private Integer userTaskStatus = 0;
+	private Integer taskFlowTimes = 0;// 流程的次数
 	private Long grantTime = 0L;// 任务授予的时间
 	private Long operateTime = 0L;// 任务操作的时间
+	private Long businessID;// 业务ID
 
 	public Integer getId() {
 		return id;
@@ -158,52 +156,12 @@ public class TaskDto extends IDtoBase {
 		this.companyName = companyName;
 	}
 
-	public String getVisitReport() {
-		return visitReport;
-	}
-
-	public void setVisitReport(String visitReport) {
-		this.visitReport = visitReport;
-	}
-
-	public Date getEstimateVisitDate() {
+	public String getEstimateVisitDate() {
 		return estimateVisitDate;
 	}
 
-	public void setEstimateVisitDate(Date estimateVisitDate) {
+	public void setEstimateVisitDate(String estimateVisitDate) {
 		this.estimateVisitDate = estimateVisitDate;
-	}
-
-	public Date getRealVisitDate() {
-		return realVisitDate;
-	}
-
-	public void setRealVisitDate(Date realVisitDate) {
-		this.realVisitDate = realVisitDate;
-	}
-
-	public Date getReturnTime() {
-		return returnTime;
-	}
-
-	public void setReturnTime(Date returnTime) {
-		this.returnTime = returnTime;
-	}
-
-	public Integer getRealVisitUser() {
-		return realVisitUser;
-	}
-
-	public void setRealVisitUser(Integer realVisitUser) {
-		this.realVisitUser = realVisitUser;
-	}
-
-	public boolean isValid() {
-		return isValid;
-	}
-
-	public void setValid(boolean isValid) {
-		this.isValid = isValid;
 	}
 
 	public Integer getTaskStatus() {
@@ -250,13 +208,52 @@ public class TaskDto extends IDtoBase {
 		this.visitTimes = visitTimes;
 	}
 
-	@Override
+	public String getProvince() {
+		return province;
+	}
+
+	public void setProvince(String province) {
+		this.province = province;
+	}
+
+	public String getCity() {
+		return city;
+	}
+
+	public void setCity(String city) {
+		this.city = city;
+	}
+
+	public boolean isUrgent() {
+		return isUrgent;
+	}
+
+	public void setUrgent(boolean isUrgent) {
+		this.isUrgent = isUrgent;
+	}
+
+	public Long getBusinessID() {
+		return businessID;
+	}
+
+	public void setBusinessID(Long businessID) {
+		this.businessID = businessID;
+	}
+
+	public Integer getTaskFlowTimes() {
+		return taskFlowTimes;
+	}
+
+	public void setTaskFlowTimes(Integer taskFlowTimes) {
+		this.taskFlowTimes = taskFlowTimes;
+	}
+
 	public String toString() {
 		return "TaskDto [id=" + id + ", bank=" + bank + ", caseID=" + caseID + ", name=" + name + ", identityCard=" + identityCard + ", bankCard=" + bankCard
-				+ ", caseAmount=" + caseAmount + ", hasPayed=" + hasPayed + ", noticeStatement=" + noticeStatement + ", address=" + address + ", region="
-				+ region + ", visitTimes=" + visitTimes + ", visitReason=" + visitReason + ", requirement=" + requirement + ", memo=" + memo + ", contactInfo="
-				+ contactInfo + ", companyName=" + companyName + ", visitReport=" + visitReport + ", estimateVisitDate=" + estimateVisitDate
-				+ ", realVisitDate=" + realVisitDate + ", returnTime=" + returnTime + ", realVisitUser=" + realVisitUser + ", isValid=" + isValid
-				+ ", taskStatus=" + taskStatus + ", userTaskStatus=" + userTaskStatus + ", grantTime=" + grantTime + ", operateTime=" + operateTime + "]";
+				+ ", caseAmount=" + caseAmount + ", hasPayed=" + hasPayed + ", noticeStatement=" + noticeStatement + ", address=" + address + ", visitTimes="
+				+ visitTimes + ", visitReason=" + visitReason + ", requirement=" + requirement + ", memo=" + memo + ", contactInfo=" + contactInfo
+				+ ", companyName=" + companyName + ", estimateVisitDate=" + estimateVisitDate + ", province=" + province + ", city=" + city + ", region="
+				+ region + ", isUrgent=" + isUrgent + ", taskStatus=" + taskStatus + ", userTaskStatus=" + userTaskStatus + ", taskFlowTimes=" + taskFlowTimes
+				+ ", grantTime=" + grantTime + ", operateTime=" + operateTime + ", businessID=" + businessID + "]";
 	}
 }

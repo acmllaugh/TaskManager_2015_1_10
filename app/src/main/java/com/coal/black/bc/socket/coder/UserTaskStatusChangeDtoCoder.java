@@ -18,6 +18,7 @@ public class UserTaskStatusChangeDtoCoder {
 			dout.writeInt(userTaskStatusChangeDto.getTaskId());
 			dout.writeInt(userTaskStatusChangeDto.getUserId());
 			dout.writeInt(userTaskStatusChangeDto.getUserTaskStatus());
+			dout.writeInt(userTaskStatusChangeDto.getTaskFlowTimes());
 		} catch (IOException ex) {
 			throw new BusinessException(Constants.USER_TASK_STATUS_CHANGE_CODER_TO_WIRE_ERROR, ex);
 		}
@@ -32,9 +33,11 @@ public class UserTaskStatusChangeDtoCoder {
 			int taskId = din.readInt();
 			int userId = din.readInt();
 			int userTaskStatus = din.readInt();
+			int taskFlowTimes = din.readInt();
 			uts.setTaskId(taskId);
 			uts.setUserId(userId);
 			uts.setUserTaskStatus(userTaskStatus);
+			uts.setTaskFlowTimes(taskFlowTimes);
 		} catch (IOException ex) {
 			throw new BusinessException(Constants.USER_TASK_STATUS_CHANGE_CODER_FORM_WIRE_ERROR, ex);
 		}

@@ -6,9 +6,10 @@ import com.coal.black.bc.socket.client.returndto.TaskQueryByTaskIDResult;
 
 public class TestTaskQueryByID {
 	public static void main(String[] args) {
-		ClientGlobal.setUserId(11);
+		ClientGlobal.setUserId(16);
+		ClientGlobal.setMacAddress("EC:CB:30:D6:1E:0C");
 		TaskQueryByTaskIDHandler handler = new TaskQueryByTaskIDHandler();
-		TaskQueryByTaskIDResult result = handler.qryTaskById(5);
+        TaskQueryByTaskIDResult result = handler.qryTaskById(4, 1);
 		if (result.isSuccess()) {
 			System.out.println("Success, result length is " + result.getTaskDto());
 		} else {

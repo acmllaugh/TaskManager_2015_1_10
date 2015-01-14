@@ -55,7 +55,6 @@ public class UploadFileDeal {
 			}
 			uploadHandler.uploadedFinished = false;
 			uploadHandler.serverReceivedLength = existLength;// 设置服务器端已经接收的长度大小
-			System.out.println(existLength);
 		} else {// 表示服务器端返回的结果是exception，则直接返回异常信息
 			return generateServerReturnNotSuccessUploadResult(srf);
 		}
@@ -88,7 +87,6 @@ public class UploadFileDeal {
 					}
 					uploadHandler.uploadedFinished = false;
 					uploadHandler.serverReceivedLength = receivedLength;// 设置服务器端已经接收的长度大小
-					System.out.println(receivedLength);
 					if (uploadFinished == 1) {// 如果接收已经完成
 						return generateHasUploadedFinishedResult(hasSuccess == 1);// 直接返回接收完成的信息
 					}

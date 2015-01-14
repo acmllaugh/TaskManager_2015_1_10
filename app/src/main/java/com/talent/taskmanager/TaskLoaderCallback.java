@@ -49,6 +49,7 @@ public class TaskLoaderCallback implements LoaderManager.LoaderCallbacks<ArrayLi
                 ((TextView) mListHeader.findViewById(R.id.list_header_read_count)).setText(Integer.toString(readCount));
                 ((TextView) mListHeader.findViewById(R.id.list_header_processing_count)).setText(Integer.toString(processingCount));
             }
+            mAdapter.notifyDataSetChanged();//For update urgent tasks.
         }
     };
 
@@ -90,7 +91,9 @@ public class TaskLoaderCallback implements LoaderManager.LoaderCallbacks<ArrayLi
             public void run() {
                 int unreadCount = 0;
                 int readCount = 0;
-                for (TaskDto task : tasks) {
+                int taskCount = tasks.size();
+                for (int i = 0; i < taskCount; i++) {
+                    TaskDto task = tasks.get(i);
                     if (mActivity == null || mActivity.isFinishing()) {
                         return;
                     }
@@ -101,6 +104,10 @@ public class TaskLoaderCallback implements LoaderManager.LoaderCallbacks<ArrayLi
                         case 2:
                             readCount++;
                             break;
+                    }
+                    if (task.isUrgent()) {
+                        tasks.remove(task);
+                        tasks.add(0, task);
                     }
                 }
                 Message msg = new Message();

@@ -81,5 +81,6 @@
     <string name="no">否</string>
     <string name="commit_task_success">提交任务成功</string>
     <string name="commit_task_failed">提交任务失败</string>
+    <string name="actual_visitor">实际外访人</string>
 
 </resources>

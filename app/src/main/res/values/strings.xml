@@ -82,5 +82,6 @@
     <string name="no">no</string>
     <string name="commit_task_success">Commit Task Success!</string>
     <string name="commit_task_failed">Commit Task Failed.</string>
+    <string name="actual_visitor">Actual Visitor</string>
 
 </resources>

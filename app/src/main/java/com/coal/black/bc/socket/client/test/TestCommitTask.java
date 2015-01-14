@@ -6,10 +6,11 @@ import com.coal.black.bc.socket.client.returndto.CommitTaskResult;
 
 public class TestCommitTask {
 	public static void main(String[] args) {
-		ClientGlobal.setUserId(11);
-		ClientGlobal.setMacAddress("7C:E9:D3:EF:FA:10");
+		ClientGlobal.setUserId(16);
+		ClientGlobal.setMacAddress("EC:CB:30:D6:1E:0C");
+
 		CommitTaskHandler handler = new CommitTaskHandler();
-		CommitTaskResult result = handler.commitTask(1, true, true, "提交报告，提交报告");
+		CommitTaskResult result = handler.commitTask(3, true, true, "提交报告，提交报告", "王慧", 1);
 		if (result.isSuccess()) {
 			System.out.println("Success");
 		} else {

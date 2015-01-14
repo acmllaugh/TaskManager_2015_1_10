@@ -15,6 +15,7 @@ public class TaskQueryByTaskIDDtoCoder {
 		DataOutputStream dout = new DataOutputStream(out);
 		try {
 			dout.writeInt(taskQryByIdDto.getTaskId());
+			dout.writeInt(taskQryByIdDto.getTaskFlowTimes());
 		} catch (IOException ex) {
 			throw new BusinessException(Constants.TASK_QUERY_BY_TASK_ID_CODER_TO_WIRE_ERROR, ex);
 		}
@@ -27,7 +28,9 @@ public class TaskQueryByTaskIDDtoCoder {
 		TaskQueryByTaskIDDto uts = new TaskQueryByTaskIDDto();
 		try {
 			int taskId = din.readInt();
+			int taskFlowTimes = din.readInt();
 			uts.setTaskId(taskId);
+			uts.setTaskFlowTimes(taskFlowTimes);
 		} catch (IOException ex) {
 			throw new BusinessException(Constants.TASK_QUERY_BY_TASK_ID_CODER_FORM_WIRE_ERROR, ex);
 		}

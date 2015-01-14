@@ -6,7 +6,8 @@ import com.coal.black.bc.socket.client.returndto.TaskQryUserNewTaskListResult;
 
 public class TestQryNewTaskListHandler {
 	public static void main(String[] args) {
-		ClientGlobal.setUserId(11);
+		ClientGlobal.setUserId(16);
+		ClientGlobal.setMacAddress("EC:CB:30:D6:1E:0C");
 		TaskQryUserNewTaskHandler handler = new TaskQryUserNewTaskHandler();
 
 		TaskQryUserNewTaskListResult contListResult = handler.qryNewTaskList(1419657487665L);

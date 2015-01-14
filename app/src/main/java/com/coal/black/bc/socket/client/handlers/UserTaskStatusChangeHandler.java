@@ -12,13 +12,14 @@ import com.coal.black.bc.socket.dto.UserTaskStatusChangeDto;
 import com.coal.black.bc.socket.enums.OperateType;
 
 public class UserTaskStatusChangeHandler {
-	public UserTaskStatusChangeResult changeUserTaskStatus(int taskId, int userTaskStatus) {
+	public UserTaskStatusChangeResult changeUserTaskStatus(int taskId, int userTaskStatus, int taskFlowTimes) {
 		SocketClient client = new SocketClient();
 		List<IDtoBase> list = new ArrayList<IDtoBase>();
 		UserTaskStatusChangeDto dto = new UserTaskStatusChangeDto();
 		dto.setUserId(ClientGlobal.getUserId());
 		dto.setTaskId(taskId);
 		dto.setUserTaskStatus(userTaskStatus);
+		dto.setTaskFlowTimes(taskFlowTimes);
 		list.add(dto);
 
 		BasicResult basicResult = client.deal(OperateType.UserTaskStatusChange, ClientGlobal.getUserId(), list, this);

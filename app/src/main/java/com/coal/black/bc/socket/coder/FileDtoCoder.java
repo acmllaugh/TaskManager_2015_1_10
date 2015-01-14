@@ -16,6 +16,7 @@ public class FileDtoCoder {
 		DataOutputStream dout = new DataOutputStream(out);
 		try {
 			dout.writeInt(fileDto.getTaskId());// 设置task的id
+			dout.writeInt(fileDto.getTaskFlowTimes());
 			dout.write(fileDto.getFileName().getBytes());
 			dout.writeInt(fileDto.getFileLength());
 			dout.write(fileDto.isPicture() ? 1 : 0);
@@ -30,7 +31,8 @@ public class FileDtoCoder {
 		DataInputStream din = new DataInputStream(in);
 		try {
 			int taskId = din.readInt();// 首先读出taskId
-			int fileNameLength = bytes.length - 9;
+			int taskFlowTimes = din.readInt();// 其次读取流程次数
+			int fileNameLength = bytes.length - 13;
 			byte[] fileNameBytes = new byte[fileNameLength];
 			din.read(fileNameBytes, 0, fileNameLength);
 			String fileName = new String(fileNameBytes);
@@ -40,6 +42,7 @@ public class FileDtoCoder {
 			fdto.setTaskId(taskId);// 设置taskId信息
 			fdto.setFileLength(fileLength);
 			fdto.setFileName(fileName);
+			fdto.setTaskFlowTimes(taskFlowTimes);// 设置taskFlowTimes
 			fdto.setPicture(ispicture);// 设置是否是图片信息
 			return fdto;
 		} catch (IOException ex) {

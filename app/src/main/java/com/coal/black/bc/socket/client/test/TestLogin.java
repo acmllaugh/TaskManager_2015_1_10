@@ -6,10 +6,10 @@ import com.coal.black.bc.socket.client.returndto.LoginResult;
 
 public class TestLogin {
 	public static void main(String[] args) {
-		ClientGlobal.setMacAddress("34:23:BA:8E:4C:10");
+		ClientGlobal.setMacAddress("8C:BC:BC:63:FE:B8");
 		for (int i = 0; i < 10; i++) {
 			UserLoginHandler userLogin = new UserLoginHandler();
-			LoginResult loginResult = userLogin.login("xy", "123456");
+			LoginResult loginResult = userLogin.login("liukunquan", "123456");
 			if (loginResult.isSuccess()) {
 				System.out.println("Success, UserID is " + loginResult.getUserId());
 			} else {
@@ -17,7 +17,6 @@ public class TestLogin {
 					System.out.println("Business Exception, exception code is " + loginResult.getBusinessErrorCode());
 				} else {
 					System.out.println("Other Exception, exception type is " + loginResult.getThrowable());
-                    loginResult.getThrowable().printStackTrace();
 				}
 			}
 		}

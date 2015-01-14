@@ -7,10 +7,11 @@ import com.coal.black.bc.socket.common.UserTaskStatusCommon;
 
 public class TestUserStatusChangeHanlder {
 	public static void main(String[] args) {
+		// ClientGlobal.setUserId(16);
+		// ClientGlobal.setMacAddress("EC:CB:30:D6:1E:0C");
 		ClientGlobal.setUserId(11);
-
 		UserTaskStatusChangeHandler handler = new UserTaskStatusChangeHandler();
-		UserTaskStatusChangeResult result = handler.changeUserTaskStatus(1, UserTaskStatusCommon.IN_DEALING);
+		UserTaskStatusChangeResult result = handler.changeUserTaskStatus(3, UserTaskStatusCommon.IN_DEALING, 1);
 		if (result.isSuccess()) {
 			System.out.println("Success");
 		} else {
