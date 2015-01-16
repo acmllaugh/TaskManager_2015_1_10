@@ -40,7 +40,6 @@ import com.talent.taskmanager.file.FileInfo;
 import com.talent.taskmanager.file.FileOperationUtils;
 import com.talent.taskmanager.file.UploadFileThread;
 import com.talent.taskmanager.network.NetworkState;
-import com.talent.taskmanager.task.TaskDetailDialog;
 
 import java.io.File;
 import java.io.IOException;
@@ -94,28 +93,36 @@ public class SingleTaskActivity extends Activity {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case MSG_CHANGE_TASK_STATUS: {
-                    Log.d("acmllaugh1", "handleMessage (line 38): get task result.");
                     Utils.dissmissProgressDialog(mProgressDialog);
                     if (msg.obj instanceof UserTaskStatusChangeResult) {
                         UserTaskStatusChangeResult result = (UserTaskStatusChangeResult) msg.obj;
                         //TODO : Whether success or not, reload the task from server(but consider a min time for reload task).
+                        Log.d("acmllaugh1", "handleMessage (line 38): get task result. " + result.isSuccess());
                         if (result.isSuccess()) {
                             if (msg.arg1 == UserTaskStatusCommon.HAS_READED) {
                                 //We changed a task from unread to readed.
                             }
                             if (msg.arg1 == UserTaskStatusCommon.IN_DEALING) {
                                 Utils.showToast(mToast, getString(R.string.task_accept_success), getApplicationContext());
-                                hideStartTaskMenuItem();
-                                showCommitTaskMenuItem(true);
+                                showMenuItem(R.id.action_start_task, false);
+                                showMenuItem(R.id.action_start_commit, true);
+                                showMenuItem(R.id.action_roll_back_task, true);
                                 enableShowUploadButtons(true);
                             }
+                            if (msg.arg1 == UserTaskStatusCommon.ROLL_BACK) {
+                                SingleTaskActivity.this.finish();
+                            }
                             mTask.setTaskStatus(msg.arg1);
-
                         } else {
                             Log.d("acmllaugh1", "handleMessage (line 38): result error code : " + result.getBusinessErrorCode());
-                            if (result.isBusException() && result.getBusinessErrorCode() == ExceptionBase.USER_TASK_NOT_VALID) {
+                            if (result.isBusException()
+                                    && result.getBusinessErrorCode() == ExceptionBase.USER_TASK_NOT_VALID) {
                                 Utils.showToast(mToast, getString(R.string.task_status_not_valid), getApplicationContext());
-                                SingleTaskActivity.this.finish();
+                                if (msg.arg1 == UserTaskStatusCommon.ROLL_BACK) {
+                                    Utils.showToast(mToast, getString(R.string.roll_back_fail), getApplicationContext());
+                                } else {
+                                    SingleTaskActivity.this.finish();
+                                }
                             }
                             // Utils.showToast(mToast, getString(R.string.change_task_status_fail), getApplicationContext());
                         }
@@ -135,11 +142,11 @@ public class SingleTaskActivity extends Activity {
                             Utils.showToast(mToast, getString(R.string.commit_task_success), SingleTaskActivity.this);
                             //Since task is committed, we don't want user to update more materials, so we finish this single task activity.
                             SingleTaskActivity.this.finish();
-                        }else {
+                        } else {
                             Utils.showToast(mToast, getString(R.string.commit_task_failed), SingleTaskActivity.this);
                             if (result.isBusException()) {
                                 Log.e("acmllaugh1", "commit task failed : " + result.getBusinessErrorCode());
-                            }else {
+                            } else {
                                 result.getThrowable().printStackTrace();
                             }
                         }
@@ -159,18 +166,19 @@ public class SingleTaskActivity extends Activity {
     }
 
     private void initVariables() {
-        mDetailButton = (TextView) findViewById(R.id.btn_task_detail);
-        mDetailButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (mDetailDialog == null) {
-                    mDetailDialog = new TaskDetailDialog(SingleTaskActivity.this, mTask);
-                }
-                if (!mDetailDialog.isShowing()) {
-                    mDetailDialog.show();
-                }
-            }
-        });
+
+    }
+
+    private void showTaskDetailInformation() {
+        ((TextView) findViewById(R.id.detail_person_name))
+                .setText(mTask.getName());
+        ((TextView) findViewById(R.id.detail_task_address))
+                .setText(mTask.getAddress());
+        ((TextView) findViewById(R.id.detail_task_contact_info)).setText(mTask.getContactInfo());
+        ((TextView) findViewById(R.id.detail_task_identity_card)).setText(mTask.getIdentityCard());
+        ((TextView) findViewById(R.id.detail_task_bank_card)).setText(mTask.getBankCard());
+        ((TextView) findViewById(R.id.detail_task_case_amount)).setText(Double.toString(mTask.getCaseAmount()));
+        ((TextView) findViewById(R.id.detail_task_has_payed)).setText(Double.toString(mTask.getHasPayed()));
     }
 
     private void registerToEventBus() {
@@ -206,12 +214,32 @@ public class SingleTaskActivity extends Activity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.action_start_task) {
-            startTask();
-        }else if (id == R.id.action_start_commit) {
-            showCommitTaskDialog();
+        switch (id) {
+            case R.id.action_start_task:
+                startTask();
+                break;
+            case R.id.action_start_commit:
+                showCommitTaskDialog();
+                break;
+            case R.id.action_roll_back_task:
+                showRollBackDialog();
+                break;
+            default:
+                break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void showRollBackDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        AlertDialog dialog = builder.setTitle(getString(R.string.roll_back_title))
+                .setPositiveButton(getString(R.string.confirm), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        changeTaskStatus(UserTaskStatusCommon.ROLL_BACK);
+                    }
+                }).setNegativeButton(getString(R.string.cancel), null).create();
+        dialog.show();
     }
 
     private void showCommitTaskDialog() {
@@ -264,10 +292,6 @@ public class SingleTaskActivity extends Activity {
             Utils.showToast(mToast, getString(R.string.net_work_unavailable), this.getApplicationContext());
             return;
         }
-        if (mTask.getTaskStatus() >= UserTaskStatusCommon.IN_DEALING
-                || targetStatus > UserTaskStatusCommon.IN_DEALING) {
-            Utils.showToast(mToast, "Task state is not proper.", this.getApplicationContext());
-        }
         mProgressDialog = Utils.showProgressDialog(mProgressDialog, this);
         Thread changeTaskStatusThread = new Thread(new Runnable() {
             @Override
@@ -306,6 +330,7 @@ public class SingleTaskActivity extends Activity {
         }
         mTaskTitleView.setText(task.getVisitReason());
         mTask = task;
+        showTaskDetailInformation();
     }
 
     private void checkTaskStatus() {
@@ -315,32 +340,24 @@ public class SingleTaskActivity extends Activity {
         switch (mTask.getUserTaskStatus()) {
             case UserTaskStatusCommon.NOT_READ:
                 changeTaskStatus(UserTaskStatusCommon.HAS_READED);
-                showCommitTaskMenuItem(false);
+                showMenuItem(R.id.action_roll_back_task, false);
+                showMenuItem(R.id.action_start_commit, false);
                 break;
             case UserTaskStatusCommon.HAS_READED:
-                showCommitTaskMenuItem(false);
+                showMenuItem(R.id.action_roll_back_task, false);
+                showMenuItem(R.id.action_start_commit, false);
                 break;
             case UserTaskStatusCommon.IN_DEALING:
-                hideStartTaskMenuItem();
+                showMenuItem(R.id.action_start_task, false);
                 break;
         }
     }
 
-    private void hideStartTaskMenuItem() {
+    private void showMenuItem(int itemID, boolean visiable) {
         int count = mMenu.size();
         for (int i = 0; i < count; i++) {
             MenuItem item = mMenu.getItem(i);
-            if (item.getItemId() == R.id.action_start_task) {
-                item.setVisible(false);
-            }
-        }
-    }
-
-    private void showCommitTaskMenuItem(boolean visiable) {
-        int count = mMenu.size();
-        for (int i = 0; i < count; i++) {
-            MenuItem item = mMenu.getItem(i);
-            if (item.getItemId() == R.id.action_start_commit) {
+            if (item.getItemId() == itemID) {
                 item.setVisible(visiable);
             }
         }

@@ -82,5 +82,7 @@
     <string name="commit_task_success">提交任务成功</string>
     <string name="commit_task_failed">提交任务失败</string>
     <string name="actual_visitor">实际外访人</string>
-
+    <string name="roll_back_task">回退</string>
+    <string name="roll_back_fail">回退失败，请稍后再试</string>
+    <string name="roll_back_title">确认回退任务？</string>
 </resources>
