@@ -92,5 +92,6 @@
     <string name="province">Province</string>
     <string name="city">City</string>
     <string name="region">Region</string>
+    <string name="filter_result">Match the filter with %d tasks</string>
 
 </resources>

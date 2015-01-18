@@ -54,6 +54,7 @@ public class TaskLoaderCallback implements LoaderManager.LoaderCallbacks<ArrayLi
     private List<Map<String, String>> mCityRegionList = new ArrayList<Map<String, String>>();
     private ArrayAdapter<String> mCityArrayAdapter;
     private ArrayAdapter<String> mRegionArrayAdapter;
+    private TextView mFilterResult;
     private String mSelectedAll;        // String of "All"
     private SpinnerItemSelectedListener mSpinnerItemSelectedListener;
     private Handler mHandler = new Handler(){
@@ -71,6 +72,7 @@ public class TaskLoaderCallback implements LoaderManager.LoaderCallbacks<ArrayLi
                 ((TextView) mListHeader.findViewById(R.id.list_header_processing_count)).setText(Integer.toString(processingCount));
 
                 initSpinners();
+                mFilterResult = (TextView) mListHeader.findViewById(R.id.txt_filter_result);
             }
             mAdapter.notifyDataSetChanged();//For update urgent tasks.
         }
@@ -246,7 +248,7 @@ public class TaskLoaderCallback implements LoaderManager.LoaderCallbacks<ArrayLi
             TaskDto task = tasks.get(i);
 //            Log.d("Chris", "Task status: " + task.getTaskStatus() + ", Province = " + task.getProvince()
 //                    + ", City = " + task.getCity() + ", Region = " + task.getRegion());
-            String taskStatus = getTaskStatusValue(task.getTaskStatus());
+            String taskStatus = getTaskStatusValue(task.getUserTaskStatus());
 
             String taskProvince = task.getProvince();
             String taskCity = task.getCity();
@@ -316,14 +318,14 @@ public class TaskLoaderCallback implements LoaderManager.LoaderCallbacks<ArrayLi
         // Spinner: Task status
         mSpinStatus = (Spinner)mListHeader.findViewById(R.id.spinner_status);
         ArrayAdapter<String> statusArrayAdapter = new ArrayAdapter<String>(mActivity.getApplicationContext(), R.layout.spinner_item, mTaskStatusList);
-        statusArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        statusArrayAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
         mSpinStatus.setAdapter(statusArrayAdapter);
         mSpinStatus.setOnItemSelectedListener(mSpinnerItemSelectedListener);
 
         // Spinner: Province
         mSpinProvince = (Spinner)mListHeader.findViewById(R.id.spinner_province);
         ArrayAdapter<String> provinceArrayAdapter = new ArrayAdapter<String>(mActivity.getApplicationContext(), R.layout.spinner_item, mProviceList);
-        provinceArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        provinceArrayAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
         mSpinProvince.setAdapter(provinceArrayAdapter);
         mSpinProvince.setOnItemSelectedListener(mSpinnerItemSelectedListener);
 
@@ -339,13 +341,13 @@ public class TaskLoaderCallback implements LoaderManager.LoaderCallbacks<ArrayLi
     private void initSpinCity(String province) {
         mCityList = getCities(province);
         mCityArrayAdapter = new ArrayAdapter<String>(mActivity.getApplicationContext(), R.layout.spinner_item, mCityList);
-        mCityArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mCityArrayAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
         mSpinCity.setAdapter(mCityArrayAdapter);
     }
     private void initSpinRegion(String city) {
         mRegionList = getRegions(city);
         mRegionArrayAdapter = new ArrayAdapter<String>(mActivity.getApplicationContext(), R.layout.spinner_item, mRegionList);
-        mRegionArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mRegionArrayAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
         mSpinRegion.setAdapter(mRegionArrayAdapter);
     }
 
@@ -394,7 +396,7 @@ public class TaskLoaderCallback implements LoaderManager.LoaderCallbacks<ArrayLi
      * @return
      */
     private boolean isFilterTask(TaskDto task) {
-        if (ifNeedStatusFilter() && task.getTaskStatus() != getTaskStatusKey(mSpinStatus.getSelectedItem().toString())) {
+        if (ifNeedStatusFilter() && task.getUserTaskStatus() != getTaskStatusKey(mSpinStatus.getSelectedItem().toString())) {
             return false;
         }
         if (ifNeedLocationFilter()) {
@@ -420,11 +422,15 @@ public class TaskLoaderCallback implements LoaderManager.LoaderCallbacks<ArrayLi
      */
     private void filterTasks() {
         mAdapter.clear();
+        int count = 0;
         for (int i = 0; i < mAllTasks.size(); i++) {
             TaskDto task = mAllTasks.get(i);
-            if (isFilterTask(task))
+            if (isFilterTask(task)) {
                 mAdapter.add(task);
+                count++;
+            }
         }
+        mFilterResult.setText(String.format(mActivity.getResources().getString(R.string.filter_result), count));
         mAdapter.notifyDataSetChanged();
     }
 

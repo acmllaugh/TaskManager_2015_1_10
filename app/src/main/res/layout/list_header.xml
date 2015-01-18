@@ -73,10 +73,27 @@
             android:layout_height="wrap_content"
             android:text="@string/region"/>
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/txt_filter_result"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="5dp"
+        android:layout_below="@+id/layout_task_location"
+        android:text="@string/filter_result"/>
+
+    <View
+        android:id="@+id/line_filter"
+        android:layout_width="fill_parent"
+        android:layout_height="1px"
+        android:layout_below="@+id/txt_filter_result"
+        android:background="?android:attr/listDivider"/>
+
     <LinearLayout
         android:orientation="horizontal" android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/layout_task_location"
+        android:layout_below="@+id/line_filter"
+        android:paddingTop="5dp"
         android:paddingLeft="5dp">
         <TextView
             android:id="@+id/list_header_total"
