@@ -42,7 +42,7 @@ public class TaskManagerService extends Service {
 
     public static final int UPLOAD_FILE_QUERY_INTERVAL = 5; // every 5 min to query whether there is unfinished file.
     private static final String TASK_NOTIFICATION_SERVICE = "task_notification_service";
-    private static final int LOCATION_UPDATE_INTERVAL = 10; // every 10 minutes we update locations to database.
+    private static final int LOCATION_UPDATE_INTERVAL = 3; // every 3 minutes we update locations to database.
     private static final int NOTIFICATION_ID = 1;
     public static final int ONE_MINUTES = 60 * 1000;
     private NotificationManager mNotificationManager;
@@ -165,21 +165,24 @@ public class TaskManagerService extends Service {
     private void getNewTasks() {
         // Check if there is a new task.
         long lastRefreshTime = getLastRefreshTime();
-        TaskQryUserNewTaskCountResult countResult = null;
-        TaskQryUserNewTaskHandler handler = new TaskQryUserNewTaskHandler();
-        countResult = handler.qryNewTaskCount(lastRefreshTime);
-        if (countResult.isSuccess()) {
-            if(countResult.getCount() > 0) {
-                showNotification(countResult.getCount());
-            }else{
-                try {
-                    mNotificationManager.cancel(NOTIFICATION_ID);
-                } catch (Exception e) {
-                    e.printStackTrace();
+        // Check new task every 10 minutes.
+        if (System.currentTimeMillis() - lastRefreshTime > 10 * ONE_MINUTES) {
+            TaskQryUserNewTaskCountResult countResult = null;
+            TaskQryUserNewTaskHandler handler = new TaskQryUserNewTaskHandler();
+            countResult = handler.qryNewTaskCount(lastRefreshTime);
+            if (countResult.isSuccess()) {
+                if(countResult.getCount() > 0) {
+                    showNotification(countResult.getCount());
+                }else{
+                    try {
+                        mNotificationManager.cancel(NOTIFICATION_ID);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
+            } else {
+                Log.d("acmllaugh1", "refresh task failed." +countResult.getThrowable().getMessage());
             }
-        } else {
-            Log.d("acmllaugh1", "refresh task failed." +countResult.getThrowable().getMessage());
         }
     }
 
@@ -189,18 +192,10 @@ public class TaskManagerService extends Service {
     }
 
     private void updateLocationInformation() {
-        if (mUpdateCountDown <= 0) {
+        if (mUpdateCountDown <= 0 || !mLastUpdateSuccess) {
             mUpdateCountDown = LOCATION_UPDATE_INTERVAL;
             Log.d("acmllaugh1", "updateLocationInformation (line 169): start upload locations.");
             SignInDto dto = new SignInDto();
-//            Location location = mLocationManager.getCurrentLocation();
-//            if (location == null) {
-//                Log.d("acmllaugh1", "updateLocationInformation (line 120): location is null. user id is : " + ClientGlobal.getUserId());
-//                return;
-//            }
-//            dto.setLatitude(location.getLatitude());
-//            dto.setLongitude(location.getLongitude());
-
             double latitude, longitude;
             BDLocation baiduLocation = mBaiduLocationManager.getCurrentLocation();
             if (baiduLocation != null) {
@@ -209,11 +204,11 @@ public class TaskManagerService extends Service {
                 Log.d("Chris", "Use Baidu location: (" + latitude + ", " + longitude + "), By " + baiduLocation.getLocType());
             } else {
                 Log.d("acmllaugh1", "updateLocationInformation (line 120): location is null. user id is : " + ClientGlobal.getUserId());
+                mLastUpdateSuccess = false;
                 return;
             }
             dto.setLatitude(latitude);
             dto.setLongitude(longitude);
-
             dto.setTime(System.currentTimeMillis());
             dto.setType(SignInType.ReportPosition);
             mRecordedLocations.add(dto);
@@ -283,9 +278,9 @@ public class TaskManagerService extends Service {
             mUploadFileCountDown = UPLOAD_FILE_QUERY_INTERVAL;
             Log.d("Chris", "check to upload unfinished files");
             FileInfo fileInfo = mUploadFileDao.getUnfinishedFiles();
-            //TODO: Check out what task flow times mean.
-            fileInfo.setTaskFlowTimes(1);
             if (fileInfo != null) {
+                //TODO: Check out what task flow times mean.
+                fileInfo.setTaskFlowTimes(1);
                 UploadFileThread uploadFileThread = new UploadFileThread(fileInfo, getApplicationContext());
                 uploadFileThread.setListener(mUploadListener);
                 uploadFileThread.start();

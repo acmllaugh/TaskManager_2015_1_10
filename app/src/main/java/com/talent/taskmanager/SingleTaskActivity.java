@@ -93,11 +93,11 @@ public class SingleTaskActivity extends Activity {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case MSG_CHANGE_TASK_STATUS: {
+                    Log.d("acmllaugh1", "handleMessage (line 38): get task result. ");
                     Utils.dissmissProgressDialog(mProgressDialog);
                     if (msg.obj instanceof UserTaskStatusChangeResult) {
                         UserTaskStatusChangeResult result = (UserTaskStatusChangeResult) msg.obj;
                         //TODO : Whether success or not, reload the task from server(but consider a min time for reload task).
-                        Log.d("acmllaugh1", "handleMessage (line 38): get task result. " + result.isSuccess());
                         if (result.isSuccess()) {
                             if (msg.arg1 == UserTaskStatusCommon.HAS_READED) {
                                 //We changed a task from unread to readed.
@@ -249,28 +249,26 @@ public class SingleTaskActivity extends Activity {
                 .setPositiveButton(getString(R.string.confirm), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        Switch isValidSwitch = (Switch) view.findViewById(R.id.switch_is_valid);
                         Switch needVisitAgainSwitch = (Switch) view.findViewById(R.id.switch_continue_visit);
                         EditText actualVisitorEditText = (EditText) view.findViewById(R.id.edit_actual_visitor);
                         EditText taskCommitEditText = (EditText) view.findViewById(R.id.edit_visit_report);
-                        boolean isVaild = isValidSwitch.isChecked();
                         boolean needVisitAgain = needVisitAgainSwitch.isChecked();
                         String actualVisitor = actualVisitorEditText.getText().toString();
                         String taskCommit = taskCommitEditText.getText().toString();
-                        doCommitTask(isVaild, needVisitAgain, actualVisitor, taskCommit);
+                        doCommitTask(needVisitAgain, actualVisitor, taskCommit);
                     }
                 })
                 .setNegativeButton(getString(R.string.cancel), null).create();
         dialog.show();
     }
 
-    private void doCommitTask(final boolean isVaild, final boolean needVisitAgain, final String actualVisitor, final String taskCommit) {
+    private void doCommitTask(final boolean needVisitAgain, final String actualVisitor, final String taskCommit) {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 CommitTaskHandler handler = new CommitTaskHandler();
                 CommitTaskResult result = handler.commitTask(
-                        mTask.getId(), isVaild, needVisitAgain, taskCommit, actualVisitor, mTask.getTaskFlowTimes());
+                        mTask.getId(), needVisitAgain, taskCommit, actualVisitor, mTask.getTaskFlowTimes());
                 Message msg = new Message();
                 msg.what = COMMIT_TASK_RESULT;
                 msg.obj = result;

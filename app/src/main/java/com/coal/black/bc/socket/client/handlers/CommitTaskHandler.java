@@ -11,12 +11,11 @@ import com.coal.black.bc.socket.dto.CommitTaskDto;
 import com.coal.black.bc.socket.enums.OperateType;
 
 public class CommitTaskHandler {
-	public CommitTaskResult commitTask(int taskId, boolean isValid, boolean needVisitAgain, String visitReport, String realVisitUser, int taskFlowTimes) {
+	public CommitTaskResult commitTask(int taskId, boolean needVisitAgain, String visitReport, String realVisitUser, int taskFlowTimes) {
 		List<IDtoBase> lists = new ArrayList<IDtoBase>();
 
 		CommitTaskDto dto = new CommitTaskDto();
 		dto.setTaskId(taskId);
-		dto.setValid(isValid);
 		dto.setNeedVisitAgain(needVisitAgain);
 		dto.setVisitReport(visitReport);
 		dto.setTaskFlowTimes(taskFlowTimes);

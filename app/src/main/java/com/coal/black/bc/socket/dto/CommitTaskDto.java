@@ -7,18 +7,9 @@ public class CommitTaskDto extends IDtoBase {
 
 	private int taskId;// 任务ID
 	private int taskFlowTimes;// 任务的流程次数
-	private boolean isValid;// 是否有效
 	private boolean needVisitAgain;// 是否需要再次访问
 	private String visitReport;// 外访报告
 	private String realVisitUser;// 实际外访人的名称
-
-	public boolean isValid() {
-		return isValid;
-	}
-
-	public void setValid(boolean isValid) {
-		this.isValid = isValid;
-	}
 
 	public boolean isNeedVisitAgain() {
 		return needVisitAgain;

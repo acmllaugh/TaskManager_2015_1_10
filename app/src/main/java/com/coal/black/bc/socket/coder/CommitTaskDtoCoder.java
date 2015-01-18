@@ -17,7 +17,8 @@ public class CommitTaskDtoCoder {
 		try {
 			dout.writeInt(commitTaskDto.getTaskId());
 			dout.writeInt(commitTaskDto.getTaskFlowTimes());
-			dout.write(new byte[] { (byte) (commitTaskDto.isValid() ? 1 : 0) });
+			// dout.write(new byte[] { (byte) (commitTaskDto.isValid() ? 1 : 0)
+			// });
 			dout.write(new byte[] { (byte) (commitTaskDto.isNeedVisitAgain() ? 1 : 0) });
 			byte[] realCommitUsers = commitTaskDto.getRealVisitUser().getBytes("UTF-8");// 实际外访人
 			dout.writeInt(realCommitUsers.length);// 写入实际外方人的长度
@@ -38,7 +39,7 @@ public class CommitTaskDtoCoder {
 			CommitTaskDto dto = new CommitTaskDto();
 			dto.setTaskId(din.readInt());
 			dto.setTaskFlowTimes(din.readInt());
-			dto.setValid(din.read() == 1);
+			// dto.setValid(din.read() == 1);
 			dto.setNeedVisitAgain(din.read() == 1);
 			int realVisitUserLength = din.readInt();
 			byte[] realVisitUser = InputStreamUtils.readFixedLengthData(realVisitUserLength, din);// 读取实际的外访人

@@ -52,10 +52,7 @@ public class TaskItemView extends RelativeLayout {
 
     private void showTaskStatus(TaskDto task) {
         boolean isTaskUnread = false;
-        String urgentText = task.isUrgent()? "(Urgent)":"";
-        if (task.isUrgent()) {
-            Log.d("acmllaugh1", "showTaskStatus (line 56): task : " + task.getName() + " is urgent.");
-        }
+        String urgentText = task.isUrgent()? mContext.getString(R.string.task_urgent):"";
         switch (task.getUserTaskStatus()) {
             case 1:
                 mTaskStatusTextView.setTextColor(mContext.getResources().getColor(android.R.color.holo_red_light));

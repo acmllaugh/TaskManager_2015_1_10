@@ -86,5 +86,6 @@
     <string name="roll_back_task">Roll Back</string>
     <string name="roll_back_fail">Roll back failed. Please try later again.</string>
     <string name="roll_back_title">Roll Back Task</string>
+    <string name="task_urgent">(Urgent)</string>
 
 </resources>
