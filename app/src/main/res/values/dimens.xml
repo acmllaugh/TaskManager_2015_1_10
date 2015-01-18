@@ -5,4 +5,5 @@
     <dimen name="login_page_txt_size">22sp</dimen>
     <dimen name="image_width">75dp</dimen>
     <dimen name="image_height">75dp</dimen>
+    <dimen name="spinner_width">75dp</dimen>
 </resources>

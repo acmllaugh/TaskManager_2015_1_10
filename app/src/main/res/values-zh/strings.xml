@@ -85,4 +85,11 @@
     <string name="roll_back_task">回退</string>
     <string name="roll_back_fail">回退失败，请稍后再试</string>
     <string name="roll_back_title">确认回退任务？</string>
+    <string name="all">全部</string>
+    <string name="task_status">任务状态：</string>
+    <string name="task_location">任务位置：</string>
+    <string name="province">省</string>
+    <string name="city">市</string>
+    <string name="region">区</string>
+
 </resources>
