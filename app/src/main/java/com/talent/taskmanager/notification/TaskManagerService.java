@@ -201,6 +201,11 @@ public class TaskManagerService extends Service {
             if (baiduLocation != null) {
                 latitude = baiduLocation.getLatitude();
                 longitude = baiduLocation.getLongitude();
+                if (!BaiduLocationManager.isValidLocation(latitude, longitude)) {
+                    Log.d("Chris", "Invalid location: (" + latitude + ", " + longitude + ")");
+                    mLastUpdateSuccess = false;
+                    return;
+                }
                 Log.d("Chris", "Use Baidu location: (" + latitude + ", " + longitude + "), By " + baiduLocation.getLocType());
             } else {
                 Log.d("acmllaugh1", "updateLocationInformation (line 120): location is null. user id is : " + ClientGlobal.getUserId());

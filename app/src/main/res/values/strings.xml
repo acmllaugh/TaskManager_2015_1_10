@@ -75,7 +75,6 @@
     <string name="change_pwd_success">Change password success!</string>
     <string name="change_password_fail">Change password failed.</string>
     <string name="commit_task">Commit Task</string>
-    <string name="is_valid">Is Valid</string>
     <string name="need_continue_visit">Need Continue Visit</string>
     <string name="task_report">Report</string>
     <string name="yes">yes</string>

@@ -82,4 +82,14 @@ public class BaiduLocationManager {
     public BDLocation getCurrentLocation() {
         return mBDLocation;
     }
+
+    /**
+     * 经度范围是[135.05,73.33]，维度范围是[3.51,53.33]
+     * @param
+     * @return
+     */
+    public static boolean isValidLocation(double latitude, double longitude) {
+        return (latitude > 3.51 && latitude < 53.33
+            && longitude > 73.33 && longitude < 135.05) ? true : false;
+    }
 }

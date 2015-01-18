@@ -355,6 +355,18 @@ public class TaskListActivity extends Activity {
         if (baiduLocation != null) {
             latitude = baiduLocation.getLatitude();
             longitude = baiduLocation.getLongitude();
+            if (!BaiduLocationManager.isValidLocation(latitude, longitude)) {
+                Log.d("Chris", "Invalid location: (" + latitude + ", " + longitude + ")");
+                Utils.dissmissProgressDialog(mProcessingDialog);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Utils.showToast(mToast, getString(R.string.sign_in_fail),
+                                TaskListActivity.this.getApplicationContext());
+                    }
+                });
+                return;
+            }
             Log.d("Chris", "Use Baidu location: (" + latitude + ", " + longitude + "), By " + baiduLocation.getLocType());
         } else {
             Log.d("acmllaugh1", "doSignIn (line 156): location is null.");
