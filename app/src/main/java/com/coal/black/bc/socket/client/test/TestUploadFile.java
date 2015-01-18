@@ -8,12 +8,12 @@ import com.coal.black.bc.socket.client.returndto.UploadFileResult;
 
 public class TestUploadFile {
 	public static void main(String[] args) {
-		// ClientGlobal.setUserId(16);
-		// ClientGlobal.setMacAddress("EC:CB:30:D6:1E:0C");
-		ClientGlobal.setUserId(11);
-		File f = new File("D:\\Wildlife.wmv");
+		ClientGlobal.setUserId(16);
+		ClientGlobal.setMacAddress("EC:CB:30:D6:1E:0C");
+		// ClientGlobal.setUserId(11);
+		File f = new File("D:\\Lighthouse1.jpg");
 		UploadFileHandler uh = new UploadFileHandler();
-		UploadFileResult result = uh.upload(f, 3, 1, false);
+		UploadFileResult result = uh.upload(f, 17, 1, true);
 		if (result.isSuccess()) {
 			System.out.println("Success, result is " + result.isUploadSuccess());
 		} else {

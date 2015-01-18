@@ -93,5 +93,6 @@
     <string name="city">City</string>
     <string name="region">Region</string>
     <string name="filter_result">Match the filter with %d tasks</string>
+    <string name="task_urgent">(Urgent)</string>
 
 </resources>

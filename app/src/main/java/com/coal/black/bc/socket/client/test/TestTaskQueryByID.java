@@ -9,7 +9,7 @@ public class TestTaskQueryByID {
 		ClientGlobal.setUserId(16);
 		ClientGlobal.setMacAddress("EC:CB:30:D6:1E:0C");
 		TaskQueryByTaskIDHandler handler = new TaskQueryByTaskIDHandler();
-        TaskQueryByTaskIDResult result = handler.qryTaskById(4, 1);
+		TaskQueryByTaskIDResult result = handler.qryTaskById(4, 1);
 		if (result.isSuccess()) {
 			System.out.println("Success, result length is " + result.getTaskDto());
 		} else {

@@ -74,14 +74,13 @@
     <string name="change_pwd_success">修改密码成功</string>
     <string name="change_password_fail">修改密码失败，请检查原密码或稍候再试</string>
     <string name="commit_task">提交任务</string>
-    <string name="is_valid">是否有效</string>
-    <string name="need_continue_visit">继续外访</string>
-    <string name="task_report">外访报告</string>
+    <string name="need_continue_visit">继续外访:</string>
+    <string name="task_report">外访报告:</string>
     <string name="yes">是</string>
     <string name="no">否</string>
     <string name="commit_task_success">提交任务成功</string>
     <string name="commit_task_failed">提交任务失败</string>
-    <string name="actual_visitor">实际外访人</string>
+    <string name="actual_visitor">实际外访人:</string>
     <string name="roll_back_task">回退</string>
     <string name="roll_back_fail">回退失败，请稍后再试</string>
     <string name="roll_back_title">确认回退任务？</string>
@@ -93,4 +92,5 @@
     <string name="region">区</string>
     <string name="filter_result">共筛选出 %d 条任务</string>
 
+    <string name="task_urgent">(紧急任务)</string>
 </resources>
