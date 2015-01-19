@@ -423,7 +423,8 @@ public class TaskLoaderCallback implements LoaderManager.LoaderCallbacks<ArrayLi
     private void filterTasks() {
         mAdapter.clear();
         int count = 0;
-        for (int i = 0; i < mAllTasks.size(); i++) {
+//        for (int i = 0; i < mAllTasks.size(); i++) {
+        for (int i = mAllTasks.size() - 1; i > -1; i--) {
             TaskDto task = mAllTasks.get(i);
             if (isFilterTask(task)) {
                 mAdapter.add(task);
