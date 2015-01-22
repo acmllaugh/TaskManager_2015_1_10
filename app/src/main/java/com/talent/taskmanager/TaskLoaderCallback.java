@@ -34,6 +34,8 @@ import java.util.Map;
  */
 public class TaskLoaderCallback implements LoaderManager.LoaderCallbacks<ArrayList<TaskDto>> {
 
+    private static final int MSG_SHOW_LIST_HEAD = 1;
+    private static final int MSG_SHOW_FILTER_RESULTS = 2;
     private TextView mEmptyView;
     private Activity mActivity;
     private ListView mTaskList;
@@ -56,25 +58,38 @@ public class TaskLoaderCallback implements LoaderManager.LoaderCallbacks<ArrayLi
     private ArrayAdapter<String> mRegionArrayAdapter;
     private TextView mFilterResult;
     private String mSelectedAll;        // String of "All"
+    private String mSelectedStatus;
+    private String mSelectedProvince;
+    private String mSelectedCity;
+    private String mSelectedRegion;
     private SpinnerItemSelectedListener mSpinnerItemSelectedListener;
     private Handler mHandler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
             Log.d("acmllaugh1", "set task count to screen.");
-            int totalCount = (Integer)msg.obj;
-            int unreadCount = msg.arg1;
-            int readCount = msg.arg2;
-            int processingCount = totalCount - unreadCount - readCount;
-            if (mListHeader != null) {
-                ((TextView) (mListHeader.findViewById(R.id.header_count_num))).setText(Integer.toString(totalCount));
-                ((TextView) mListHeader.findViewById(R.id.list_header_unread_count)).setText(Integer.toString(unreadCount));
-                ((TextView) mListHeader.findViewById(R.id.list_header_read_count)).setText(Integer.toString(readCount));
-                ((TextView) mListHeader.findViewById(R.id.list_header_processing_count)).setText(Integer.toString(processingCount));
-
-                initSpinners();
-                mFilterResult = (TextView) mListHeader.findViewById(R.id.txt_filter_result);
+            switch (msg.what) {
+                case MSG_SHOW_LIST_HEAD:
+                    int totalCount = (Integer)msg.obj;
+                    int unreadCount = msg.arg1;
+                    int readCount = msg.arg2;
+                    int processingCount = totalCount - unreadCount - readCount;
+                    if (mListHeader != null) {
+                        ((TextView) (mListHeader.findViewById(R.id.header_count_num))).setText(Integer.toString(totalCount));
+                        ((TextView) mListHeader.findViewById(R.id.list_header_unread_count)).setText(Integer.toString(unreadCount));
+                        ((TextView) mListHeader.findViewById(R.id.list_header_read_count)).setText(Integer.toString(readCount));
+                        ((TextView) mListHeader.findViewById(R.id.list_header_processing_count)).setText(Integer.toString(processingCount));
+                    }
+                    mAdapter.notifyDataSetChanged();//For update urgent tasks.
+                    break;
+                case MSG_SHOW_FILTER_RESULTS:
+                    if (mSpinStatus == null) {
+                        initSpinners();
+                        mFilterResult = (TextView) mListHeader.findViewById(R.id.txt_filter_result);
+                    }
+                    mFilterResult.setText(String.format(mActivity.getResources().getString(R.string.filter_result), msg.arg1));
+                    mAdapter.notifyDataSetChanged();
+                    break;
             }
-            mAdapter.notifyDataSetChanged();//For update urgent tasks.
         }
     };
 
@@ -103,17 +118,16 @@ public class TaskLoaderCallback implements LoaderManager.LoaderCallbacks<ArrayLi
     @Override
     public void onLoadFinished(Loader<ArrayList<TaskDto>> arrayListLoader, ArrayList<TaskDto> tasks) {
         if (tasks != null) {
-            if (tasks.size() > 0 && tasks != mAllTasks) {
-                getSelections(tasks);
-                mAllTasks = tasks;
-            }
-
-            mAdapter.clear();
-            mAdapter.addAll(tasks);
-            mAdapter.notifyDataSetChanged();
+//            mAdapter.clear();
+//            mAdapter.addAll(tasks);
+//            mAdapter.notifyDataSetChanged();
             showEmptyView(tasks.size() < 1);
             showListHeader(tasks);
             saveLoadTime();
+
+            getSelections(tasks);
+            mAllTasks = tasks;
+            showFilterResults();
         }
         displayProgress(false);
     }
@@ -144,6 +158,7 @@ public class TaskLoaderCallback implements LoaderManager.LoaderCallbacks<ArrayLi
                     }
                 }
                 Message msg = new Message();
+                msg.what = MSG_SHOW_LIST_HEAD;
                 msg.obj = tasks.size();
                 msg.arg1 = unreadCount;
                 msg.arg2 = readCount;
@@ -355,17 +370,24 @@ public class TaskLoaderCallback implements LoaderManager.LoaderCallbacks<ArrayLi
         @Override
         public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
             if (adapterView.getId() == R.id.spinner_province) {
-                Log.d("Chris", "Province selected: " + mSpinProvince.getSelectedItem().toString());
-                initSpinCity(mSpinProvince.getSelectedItem().toString());
+                mSelectedProvince = mSpinProvince.getSelectedItem().toString();
+                Log.d("Chris", "Province selected: " + mSelectedProvince);
+                initSpinCity(mSelectedProvince);
             } else if (adapterView.getId() == R.id.spinner_city) {
-                Log.d("Chris", "City selected: " + mSpinCity.getSelectedItem().toString());
-                initSpinRegion(mSpinCity.getSelectedItem().toString());
+                mSelectedCity = mSpinCity.getSelectedItem().toString();
+                Log.d("Chris", "City selected: " + mSelectedCity);
+                initSpinRegion(mSelectedCity);
             } else if (adapterView.getId() == R.id.spinner_region) {
-                Log.d("Chris", "Region selected: " + mSpinRegion.getSelectedItem().toString());
+                mSelectedRegion = mSpinRegion.getSelectedItem().toString();
+                Log.d("Chris", "Region selected: " + mSelectedRegion);
             } else if (adapterView.getId() == R.id.spinner_status) {
-                Log.d("Chris", "Status selected: " + mSpinStatus.getSelectedItem().toString());
+                mSelectedStatus = mSpinStatus.getSelectedItem().toString();
+                Log.d("Chris", "Status selected: " + mSelectedStatus);
             }
-            filterTasks();
+            if (mSelectedStatus != null && mSelectedProvince != null
+                    && mSelectedCity != null && mSelectedRegion != null) {
+                showFilterResults();
+            }
         }
 
         @Override
@@ -374,20 +396,20 @@ public class TaskLoaderCallback implements LoaderManager.LoaderCallbacks<ArrayLi
     }
 
     private boolean ifNeedStatusFilter() {
-        return (mSpinStatus.getSelectedItem() != null
-                && !mSelectedAll.equals(mSpinStatus.getSelectedItem().toString()) ? true : false);
+        return (mSelectedStatus != null
+                && !mSelectedAll.equals(mSelectedStatus) ? true : false);
     }
     private boolean ifNeedLocationFilter() {
-        return (mSpinProvince.getSelectedItem() != null
-                && !mSelectedAll.equals(mSpinProvince.getSelectedItem().toString()) ? true : false);
+        return (mSelectedProvince != null
+                && !mSelectedAll.equals(mSelectedProvince) ? true : false);
     }
     private boolean ifNeedCityFilter() {
-        return (mSpinCity.getSelectedItem() != null
-                && !mSelectedAll.equals(mSpinCity.getSelectedItem().toString()) ? true : false);
+        return (mSelectedCity != null
+                && !mSelectedAll.equals(mSelectedCity) ? true : false);
     }
     private boolean ifNeedRegionFilter() {
-        return (mSpinRegion.getSelectedItem() != null
-                && !mSelectedAll.equals(mSpinRegion.getSelectedItem().toString()) ? true : false);
+        return (mSelectedRegion != null
+                && !mSelectedAll.equals(mSelectedRegion) ? true : false);
     }
 
     /**
@@ -396,19 +418,19 @@ public class TaskLoaderCallback implements LoaderManager.LoaderCallbacks<ArrayLi
      * @return
      */
     private boolean isFilterTask(TaskDto task) {
-        if (ifNeedStatusFilter() && task.getUserTaskStatus() != getTaskStatusKey(mSpinStatus.getSelectedItem().toString())) {
+        if (ifNeedStatusFilter() && task.getUserTaskStatus() != getTaskStatusKey(mSelectedStatus)) {
             return false;
         }
         if (ifNeedLocationFilter()) {
-            if (!task.getProvince().equals(mSpinProvince.getSelectedItem().toString())) {
+            if (!task.getProvince().equals(mSelectedProvince)) {
                 return false;
             }
             if (ifNeedCityFilter()) {
-                if (!task.getCity().equals(mSpinCity.getSelectedItem().toString())) {
+                if (!task.getCity().equals(mSelectedCity)) {
                     return false;
                 }
                 if (ifNeedRegionFilter()) {
-                    if (!task.getRegion().equals(mSpinRegion.getSelectedItem().toString())) {
+                    if (!task.getRegion().equals(mSelectedRegion)) {
                         return false;
                     }
                 }
@@ -420,7 +442,7 @@ public class TaskLoaderCallback implements LoaderManager.LoaderCallbacks<ArrayLi
     /**
      * Filter those tasks
      */
-    private void filterTasks() {
+    private void showFilterResults() {
         mAdapter.clear();
         int count = 0;
 //        for (int i = 0; i < mAllTasks.size(); i++) {
@@ -431,8 +453,10 @@ public class TaskLoaderCallback implements LoaderManager.LoaderCallbacks<ArrayLi
                 count++;
             }
         }
-        mFilterResult.setText(String.format(mActivity.getResources().getString(R.string.filter_result), count));
-        mAdapter.notifyDataSetChanged();
+        Message msg = new Message();
+        msg.what = MSG_SHOW_FILTER_RESULTS;
+        msg.arg1 = count;
+        mHandler.sendMessage(msg);
     }
 
 }
