@@ -93,7 +93,6 @@ public class SingleTaskActivity extends Activity {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case MSG_CHANGE_TASK_STATUS: {
-                    Log.d("acmllaugh1", "handleMessage (line 38): get task result. ");
                     Utils.dissmissProgressDialog(mProgressDialog);
                     if (msg.obj instanceof UserTaskStatusChangeResult) {
                         UserTaskStatusChangeResult result = (UserTaskStatusChangeResult) msg.obj;

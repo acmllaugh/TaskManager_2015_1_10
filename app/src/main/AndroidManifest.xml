@@ -45,13 +45,25 @@
         <service
             android:name="com.talent.taskmanager.notification.TaskManagerService"
             android:enabled="true"
-            android:label="Task Notification" >
+            android:label="Task Notification"
+            android:process=":service">
+        </service>
+
+        <service
+            android:name="com.talent.taskmanager.notification.RestartGuardService"
+            android:enabled="true"
+            android:label="Task Service Guard"
+            android:process=":guard_service">
         </service>
 
         <receiver android:name="com.talent.taskmanager.notification.StartServiceReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.TIME_TICK" />
+                <action android:name="com.talent.taskmanager.restartService" />
+            </intent-filter>
+            <intent-filter android:priority="1000" >
+                <action android:name="com.dbjtech.myservice" />
             </intent-filter>
         </receiver>
 

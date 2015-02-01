@@ -176,7 +176,6 @@ public class TaskListActivity extends Activity {
             this.finish();
         } else {
             ClientGlobal.setUserId(mUserID);
-            Log.d("acmllaugh1", "initUserIDFromIntent (line 99): login successful, welcome");
         }
     }
 

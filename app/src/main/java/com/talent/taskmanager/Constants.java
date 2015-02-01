@@ -1,5 +1,6 @@
 package com.talent.taskmanager;
 
+import com.talent.taskmanager.notification.RestartGuardService;
 import com.talent.taskmanager.notification.TaskManagerService;
 
 /**
@@ -9,6 +10,7 @@ public interface Constants {
 
     public static final boolean IN_DEBUG_MODE = true;
     public static final String SERVICE_NAME = TaskManagerService.class.getName();
+    public static final String GUARD_SERVICE_NAME = RestartGuardService.class.getName();
     public static final String TASK_LIST_ACTIVITY_NAME = TaskListActivity.class.getName();
     public static final String START_TASK_LIST_ACTIVITY_ACTION = "start_task_list_action";
     public static final String USER_ID = "user_id";

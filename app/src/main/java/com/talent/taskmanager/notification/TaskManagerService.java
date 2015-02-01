@@ -65,6 +65,7 @@ public class TaskManagerService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         initVars();
+        startGuardService();
         Utils.getMACAddress(mPrefs, getApplicationContext());
         registerToTimeCount();
         acquireWakeLock();
@@ -73,6 +74,13 @@ public class TaskManagerService extends Service {
         mServiceIsRunning = true;
         new ServiceTask().execute();
         return START_STICKY; // Make sure our service will start when it is closed by system due to low memory.
+    }
+
+    private void startGuardService() {
+        if (!Utils.isServiceRunning(getApplicationContext(), Constants.GUARD_SERVICE_NAME)) {
+            Intent intent = new Intent(getApplicationContext(), RestartGuardService.class);
+            startService(intent);
+        }
     }
 
     private void acquireWakeLock() {
@@ -108,6 +116,8 @@ public class TaskManagerService extends Service {
         if (mWakeLock.isHeld()) {
             mWakeLock.release();
         }
+        Intent intent = new Intent("com.talent.taskmanager.restartService");
+        sendBroadcast(intent);
         super.onDestroy();
     }
 
@@ -142,11 +152,11 @@ public class TaskManagerService extends Service {
                         break;
                     }
                     Thread.sleep(ONE_MINUTES);
+                    startGuardService();
                     updateLocationInformation();
                     if (!isTaskListInFront()) {
                         getNewTasks();
                     }
-
                     uploadFileIfNeed();
                 }
             } catch (Exception e) {
