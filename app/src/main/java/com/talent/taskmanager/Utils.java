@@ -133,6 +133,28 @@ public class Utils {
             WifiManager manager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
             WifiInfo info = manager.getConnectionInfo();
             macAddress = info.getMacAddress();
+
+            // Try to get mac address when wifi is never open
+            if (macAddress == null && !manager.isWifiEnabled()) {
+                manager.setWifiEnabled(true);
+                for (int i = 0; i < 100; i++) {
+                    WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+                    WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+                    String mac = wifiInfo.getMacAddress();
+                    if (mac != null) break;
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                info = manager.getConnectionInfo();
+                macAddress = info.getMacAddress();
+                Log.d("Chris", "getMACAddress(): get mac address, " + macAddress);
+                manager.setWifiEnabled(false);
+            }
+
             SharedPreferences.Editor editor = preferences.edit();
             editor.putString(Constants.MAC_ADDRESS, macAddress);
             editor.apply();
@@ -173,7 +195,7 @@ public class Utils {
      * @return true if clock is set to 24-hour mode
      */
     public static boolean get24HourMode(final Context context) {
-        return android.text.format.DateFormat.is24HourFormat(context);
+        return DateFormat.is24HourFormat(context);
     }
 
 }
