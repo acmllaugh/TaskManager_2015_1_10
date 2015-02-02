@@ -110,7 +110,7 @@ public class UploadFileDeal {
 	 * 
 	 * @param in
 	 * @return
-	 * @throws java.io.IOException
+	 * @throws IOException
 	 */
 	public static int getHasReceviedBytesLength(InputStream in) throws IOException {
 		byte[] lengthBytes = InputStreamUtils.readFixedLengthData(4, in);

@@ -8,12 +8,14 @@ public class TaskDto extends IDtoBase {
 	private String bank;
 	private String caseID;
 	private String name;
+	private String cardOwnedName;// 持卡人姓名
 	private String identityCard;
 	private String bankCard;
 	private double caseAmount = 0;
 	private double hasPayed = 0;
 	private String noticeStatement;
 	private String address;
+	private String addressType;// 地址类型
 	private Integer visitTimes = 0;
 	private String visitReason;
 	private String requirement;
@@ -248,12 +250,30 @@ public class TaskDto extends IDtoBase {
 		this.taskFlowTimes = taskFlowTimes;
 	}
 
+	public String getCardOwnedName() {
+		return cardOwnedName;
+	}
+
+	public void setCardOwnedName(String cardOwnedName) {
+		this.cardOwnedName = cardOwnedName;
+	}
+
+	public String getAddressType() {
+		return addressType;
+	}
+
+	public void setAddressType(String addressType) {
+		this.addressType = addressType;
+	}
+
+	@Override
 	public String toString() {
-		return "TaskDto [id=" + id + ", bank=" + bank + ", caseID=" + caseID + ", name=" + name + ", identityCard=" + identityCard + ", bankCard=" + bankCard
-				+ ", caseAmount=" + caseAmount + ", hasPayed=" + hasPayed + ", noticeStatement=" + noticeStatement + ", address=" + address + ", visitTimes="
-				+ visitTimes + ", visitReason=" + visitReason + ", requirement=" + requirement + ", memo=" + memo + ", contactInfo=" + contactInfo
-				+ ", companyName=" + companyName + ", estimateVisitDate=" + estimateVisitDate + ", province=" + province + ", city=" + city + ", region="
-				+ region + ", isUrgent=" + isUrgent + ", taskStatus=" + taskStatus + ", userTaskStatus=" + userTaskStatus + ", taskFlowTimes=" + taskFlowTimes
-				+ ", grantTime=" + grantTime + ", operateTime=" + operateTime + ", businessID=" + businessID + "]";
+		return "TaskDto [id=" + id + ", bank=" + bank + ", caseID=" + caseID + ", name=" + name + ", cardOwnedName=" + cardOwnedName + ", identityCard="
+				+ identityCard + ", bankCard=" + bankCard + ", caseAmount=" + caseAmount + ", hasPayed=" + hasPayed + ", noticeStatement=" + noticeStatement
+				+ ", address=" + address + ", addressType=" + addressType + ", visitTimes=" + visitTimes + ", visitReason=" + visitReason + ", requirement="
+				+ requirement + ", memo=" + memo + ", contactInfo=" + contactInfo + ", companyName=" + companyName + ", estimateVisitDate=" + estimateVisitDate
+				+ ", province=" + province + ", city=" + city + ", region=" + region + ", isUrgent=" + isUrgent + ", taskStatus=" + taskStatus
+				+ ", userTaskStatus=" + userTaskStatus + ", taskFlowTimes=" + taskFlowTimes + ", grantTime=" + grantTime + ", operateTime=" + operateTime
+				+ ", businessID=" + businessID + "]";
 	}
 }

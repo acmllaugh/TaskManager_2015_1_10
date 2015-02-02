@@ -25,6 +25,7 @@ public class TaskDtoCoder {
 			writeStringData(task.getBank(), dout);// 写入银行
 			writeStringData(task.getCaseID(), dout);// 写入个案序列号
 			writeStringData(task.getName(), dout);// 写名称
+			writeStringData(task.getCardOwnedName(), dout);// 写入持卡人姓名
 			writeStringData(task.getIdentityCard(), dout);// 写入身份证号
 			writeStringData(task.getBankCard(), dout);// 写入银行卡号
 
@@ -32,7 +33,9 @@ public class TaskDtoCoder {
 			writeDoubleData(task.getHasPayed(), dout);// 写入已还款
 
 			writeStringData(task.getNoticeStatement(), dout);// 催款状态
+
 			writeStringData(task.getAddress(), dout);// 写入地址
+			writeStringData(task.getAddressType(), dout);// 写入地址类型
 
 			writeIntegerData(task.getVisitTimes(), dout);// 写入访问次数
 
@@ -79,6 +82,7 @@ public class TaskDtoCoder {
 			taskDto.setBank(getStringData(din));// 读取银行信息
 			taskDto.setCaseID(getStringData(din));// 读取个案序列号
 			taskDto.setName(getStringData(din));// 读取名称
+			taskDto.setCardOwnedName(getStringData(din));// 获取持卡人姓名
 			taskDto.setIdentityCard(getStringData(din));// 读取身份证号码
 			taskDto.setBankCard(getStringData(din));// 读取银行卡号
 
@@ -89,6 +93,7 @@ public class TaskDtoCoder {
 
 			taskDto.setNoticeStatement(getStringData(din));// 读取催款状态
 			taskDto.setAddress(getStringData(din));// 读取地址
+			taskDto.setAddressType(getStringData(din));// 获取地址类型
 
 			int visitedTimes = din.readInt();
 			taskDto.setVisitTimes(visitedTimes);

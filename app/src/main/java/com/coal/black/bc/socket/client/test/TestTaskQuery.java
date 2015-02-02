@@ -6,8 +6,9 @@ import com.coal.black.bc.socket.client.returndto.TaskQueryResult;
 
 public class TestTaskQuery {
 	public static void main(String[] args) {
-		ClientGlobal.setUserId(16);
-		ClientGlobal.setMacAddress("EC:CB:30:D6:1E:0C");
+		// ClientGlobal.setUserId(16);
+		// ClientGlobal.setMacAddress("EC:CB:30:D6:1E:0C");
+		ClientGlobal.setUserId(1);
 		int[] status = new int[] { 1, 2, 3 };// 状态
 		TaskQueryHandler taskQueryHandler = new TaskQueryHandler();
 		TaskQueryResult result = taskQueryHandler.qryTasks(status);// 查询任务
