@@ -43,6 +43,7 @@ import com.talent.taskmanager.network.NetworkState;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import de.greenrobot.event.EventBus;
 
@@ -456,9 +457,10 @@ public class SingleTaskActivity extends Activity {
     }
 
     private void selectImage() {
-        Intent intent = new Intent();
-        intent.setType(FILE_TYPE_IMAGE);
-        intent.setAction(Intent.ACTION_GET_CONTENT);
+//        Intent intent = new Intent();
+//        intent.setType(FILE_TYPE_IMAGE);
+//        intent.setAction(Intent.ACTION_GET_CONTENT);
+        Intent intent = new Intent(getApplicationContext(), ImageGridActivity.class);
         startActivityForResult(intent, REQ_CODE_SELECT_PICTURE);
     }
 
@@ -500,11 +502,33 @@ public class SingleTaskActivity extends Activity {
     }
 
     private void selectImageResult(Intent data) {
-        Uri uri = data.getData();
-        String oldPath = FileOperationUtils.getFilePathByUri(uri, this);
-        if (FILE_TYPE_IMAGE.equals(FileOperationUtils.getMIMEType(new File(oldPath)))) {
-            Bitmap bitmap = FileOperationUtils.compressImageBySrc(oldPath);
-            String name = Utils.getImageName(System.currentTimeMillis());
+//        Uri uri = data.getData();
+//        String oldPath = FileOperationUtils.getFilePathByUri(uri, this);
+//        if (FILE_TYPE_IMAGE.equals(FileOperationUtils.getMIMEType(new File(oldPath)))) {
+//            Bitmap bitmap = FileOperationUtils.compressImageBySrc(oldPath);
+//            String name = Utils.getImageName(System.currentTimeMillis());
+//            final String newPath = mTaskFilePath + "/" + name;
+//            FileOperationUtils.saveBitmapToFile(bitmap, newPath);
+//            MediaScannerConnection.scanFile(getApplication(),
+//                    new String[]{mTaskFilePath}, null, null);
+//            Log.d("Chris", "selectImageResult, path = " + newPath);
+//            mGridImages.addView(createImageView(newPath), mGridImages.getChildCount());
+//            // upload image to server
+//            mFileInfo.setFilePath(newPath);
+//            mFileInfo.setPicture(true);
+//            mFileInfo.setTaskFlowTimes(mTask.getTaskFlowTimes());
+//            startUploadFile(mFileInfo);
+//        } else {
+//            Utils.showToast(mToast, getString(R.string.invalid_image), getApplicationContext());
+//        }
+
+        List<String> pathList = (List<String>)data.getSerializableExtra("paths");
+        Log.d("Chris", "selectImageResult, data = " + pathList);
+        if (pathList == null)
+            return;
+        for (int i = 0; i < pathList.size(); i++) {
+            Bitmap bitmap = FileOperationUtils.compressImageBySrc(pathList.get(i));
+            String name = Utils.getImageName(System.currentTimeMillis() + 1000 * i);
             final String newPath = mTaskFilePath + "/" + name;
             FileOperationUtils.saveBitmapToFile(bitmap, newPath);
             MediaScannerConnection.scanFile(getApplication(),
@@ -516,8 +540,6 @@ public class SingleTaskActivity extends Activity {
             mFileInfo.setPicture(true);
             mFileInfo.setTaskFlowTimes(mTask.getTaskFlowTimes());
             startUploadFile(mFileInfo);
-        } else {
-            Utils.showToast(mToast, getString(R.string.invalid_image), getApplicationContext());
         }
     }
 

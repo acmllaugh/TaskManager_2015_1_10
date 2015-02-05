@@ -93,4 +93,9 @@
     <string name="filter_result">共筛选出 %d 条任务</string>
 
     <string name="task_urgent">(紧急任务)</string>
+    <string name="default_folder">/Camera</string>
+    <string name="action_send">发送</string>
+    <string name="picture_num">张</string>
+    <string name="loading_now">正在加载...</string>
+    <string name="max_num_toast">你一次只能上传9张照片.</string>
 </resources>

@@ -93,5 +93,10 @@
     <string name="region">Region</string>
     <string name="filter_result">Match the filter with %d tasks</string>
     <string name="task_urgent">(Urgent)</string>
+    <string name="default_folder">/Camera</string>
+    <string name="action_send">Send</string>
+    <string name="picture_num"> pictures</string>
+    <string name="loading_now">Loading...</string>
+    <string name="max_num_toast">You can only upload 9 pictures once.</string>
 
 </resources>

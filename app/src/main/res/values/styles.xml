@@ -19,4 +19,14 @@
         <item name="android:textSize">@dimen/login_page_txt_size</item>
     </style>
 
+    <style name="TitleTheme" parent="android:Theme.Holo.Light.DarkActionBar">
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowTitleSize">50dip</item>
+    </style>
+
+    <style name="anim_popup_dir">
+        <item name="android:windowEnterAnimation">@anim/popwindow_in</item>
+        <item name="android:windowExitAnimation">@anim/popwindow_out</item>
+    </style>
+
 </resources>
