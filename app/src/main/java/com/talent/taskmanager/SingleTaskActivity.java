@@ -179,6 +179,8 @@ public class SingleTaskActivity extends Activity {
         ((TextView) findViewById(R.id.detail_task_bank_card)).setText(mTask.getBankCard());
         ((TextView) findViewById(R.id.detail_task_case_amount)).setText(Double.toString(mTask.getCaseAmount()));
         ((TextView) findViewById(R.id.detail_task_has_payed)).setText(Double.toString(mTask.getHasPayed()));
+        ((TextView) findViewById(R.id.detail_task_address_type)).setText(mTask.getAddressType());
+        ((TextView) findViewById(R.id.detail_task_card_name)).setText(mTask.getCardOwnedName());
     }
 
     private void registerToEventBus() {

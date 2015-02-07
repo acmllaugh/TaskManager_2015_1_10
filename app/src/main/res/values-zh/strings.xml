@@ -28,6 +28,7 @@
     <string name="task_name">任务名称：</string>
     <string name="task_person_name">姓名：</string>
     <string name="task_address">地址：</string>
+    <string name="task_address_type">地址类型:</string>
     <string name="task_contact_info">联系方式：</string>
     <string name="confirm_know">确认</string>
     <string name="sign_in_success">签到成功！</string>
@@ -43,6 +44,7 @@
     <string name="connection_out_of_time">连接超时，请稍后再试</string>
     <string name="identity_card">证件号：</string>
     <string name="bankCard">银行卡号：</string>
+    <string name="card_name">持卡人:</string>
     <string name="case_amount">委案金额：</string>
     <string name="has_payed">已还款：</string>
     <string name="change_task_status_fail">变更任务状态失败，请稍后重试</string>

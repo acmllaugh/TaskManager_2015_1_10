@@ -29,6 +29,7 @@
     <string name="task_name">Task Name:</string>
     <string name="task_person_name">Person Name:</string>
     <string name="task_address">Address:</string>
+    <string name="task_address_type">Address type:</string>
     <string name="task_contact_info">Contact Info:</string>
     <string name="confirm_know">Confirm</string>
     <string name="sign_in_success">Sign in successfully!</string>
@@ -44,6 +45,7 @@
     <string name="connection_out_of_time">Connection ran out of time, please try latter again.</string>
     <string name="identity_card">Identity Card:</string>
     <string name="bankCard">Bank Card:</string>
+    <string name="card_name">Card owner:</string>
     <string name="case_amount">Case Amount:</string>
     <string name="has_payed">Has Paid:</string>
     <string name="change_task_status_fail">Change task status failed.</string>
