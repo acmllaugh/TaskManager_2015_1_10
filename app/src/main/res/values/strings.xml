@@ -46,6 +46,7 @@
     <string name="identity_card">Identity Card:</string>
     <string name="bankCard">Bank Card:</string>
     <string name="card_name">Card owner:</string>
+    <string name="task_memo">Memo:</string>
     <string name="case_amount">Case Amount:</string>
     <string name="has_payed">Has Paid:</string>
     <string name="change_task_status_fail">Change task status failed.</string>
@@ -100,5 +101,6 @@
     <string name="picture_num"> pictures</string>
     <string name="loading_now">Loading...</string>
     <string name="max_num_toast">You can only upload 9 pictures once.</string>
+    <string name="max_num_record_toast">You can only upload %d audios once.</string>
 
 </resources>

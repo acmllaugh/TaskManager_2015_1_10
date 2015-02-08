@@ -10,7 +10,7 @@ android {
         minSdkVersion 15
         targetSdkVersion 20
         versionCode 2
-        versionName "1.0.0_20150201"
+        versionName "1.0.0_20150209"
     }
 
     lintOptions {

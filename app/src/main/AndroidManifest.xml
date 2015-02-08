@@ -85,6 +85,12 @@
             android:screenOrientation="portrait">
         </activity>
 
+        <activity
+            android:name="com.talent.taskmanager.MusicListActivity"
+            android:label="@string/title_activity_single_task"
+            android:screenOrientation="portrait">
+        </activity>
+
         <service
             android:name="com.baidu.location.f"
             android:enabled="true"

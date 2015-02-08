@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:padding="5dp"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/txt_audio_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:maxWidth="300dp"
+        android:text="AudioName"/>
+
+    <TextView
+        android:id="@+id/txt_audio_path"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="AudioPath"
+        android:maxWidth="180dp"
+        android:singleLine="true"
+        android:ellipsize="start"
+        android:visibility="gone"
+        android:layout_below="@id/txt_audio_name"/>
+
+    <TextView
+        android:id="@+id/txt_last_modified"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="last_modified_time"
+        android:layout_below="@id/txt_audio_name"
+        android:layout_marginLeft="5dp"
+        android:textSize="14sp"
+        android:textColor="@android:color/darker_gray"
+        android:layout_toRightOf="@id/txt_audio_path"/>
+
+    <CheckBox
+        android:id="@+id/chbx_item"
+        android:layout_width="40dp"
+        android:layout_height="45dp"
+        android:focusable="false"
+        android:layout_alignParentRight="true"/>
+
+</RelativeLayout>

@@ -43,6 +43,8 @@ import com.talent.taskmanager.network.NetworkState;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 
 import de.greenrobot.event.EventBus;
@@ -131,7 +133,7 @@ public class SingleTaskActivity extends Activity {
                 }
                 case MSG_UPLOAD_FILE_SUCCEED:
                     if (msg.obj instanceof Boolean) {
-                        Utils.showToast(mToast, getString((Boolean) msg.obj ? R.string.image_upload_succeed : R.string.audio_upload_succeed), getApplicationContext());
+//                        Utils.showToast(mToast, getString((Boolean) msg.obj ? R.string.image_upload_succeed : R.string.audio_upload_succeed), getApplicationContext());
                     }
                     break;
                 case COMMIT_TASK_RESULT:
@@ -181,6 +183,7 @@ public class SingleTaskActivity extends Activity {
         ((TextView) findViewById(R.id.detail_task_has_payed)).setText(Double.toString(mTask.getHasPayed()));
         ((TextView) findViewById(R.id.detail_task_address_type)).setText(mTask.getAddressType());
         ((TextView) findViewById(R.id.detail_task_card_name)).setText(mTask.getCardOwnedName());
+        ((TextView) findViewById(R.id.detail_task_memo)).setText(mTask.getMemo());
     }
 
     private void registerToEventBus() {
@@ -472,9 +475,10 @@ public class SingleTaskActivity extends Activity {
     }
 
     private void selectAudio() {
-        Intent intent = new Intent();
-        intent.setType(FILE_TYPE_AUDIO);
-        intent.setAction(Intent.ACTION_GET_CONTENT);
+//        Intent intent = new Intent();
+//        intent.setType(FILE_TYPE_AUDIO);
+//        intent.setAction(Intent.ACTION_GET_CONTENT);
+        Intent intent = new Intent(getApplicationContext(), MusicListActivity.class);
         startActivityForResult(intent, REQ_CODE_SELECT_AUDIO);
     }
 
@@ -566,12 +570,36 @@ public class SingleTaskActivity extends Activity {
     }
 
     private void selectAudioResult(Intent data) {
-        Uri uri = data.getData();
-        String oldPath = FileOperationUtils.getFilePathByUri(uri, this);
-        if (FILE_TYPE_AUDIO.equals(FileOperationUtils.getMIMEType(new File(oldPath)))) {
+//        Uri uri = data.getData();
+//        String oldPath = FileOperationUtils.getFilePathByUri(uri, this);
+//        if (FILE_TYPE_AUDIO.equals(FileOperationUtils.getMIMEType(new File(oldPath)))) {
+//            String newPath = mTaskFilePath + "/"
+//                    + Utils.getAudioName(System.currentTimeMillis());
+//            FileOperationUtils.copyFile(oldPath, newPath);
+//            MediaScannerConnection.scanFile(getApplication(),
+//                    new String[]{mTaskFilePath}, null, null);
+//
+//            mGridAudios.addView(createAudioView(newPath), mGridAudios.getChildCount());
+//            Log.d("Chris", "selectAudioResult, path = " + newPath);
+//            // upload audio to server
+//            mFileInfo.setFilePath(newPath);
+//            mFileInfo.setPicture(false);
+//            mFileInfo.setTaskFlowTimes(mTask.getTaskFlowTimes());
+//            startUploadFile(mFileInfo);
+//        } else {
+//            Utils.showToast(mToast, getString(R.string.invalid_audio), getApplicationContext());
+//        }
+
+        HashSet<String> pathList = (HashSet<String>) data.getSerializableExtra("paths");
+        Log.d("Chris", "selectAudioResult, data = " + pathList + " is null: " + (pathList == null));
+        if (pathList == null)
+            return;
+        Iterator it = pathList.iterator();
+        int i = 0;
+        while (it.hasNext()) {
             String newPath = mTaskFilePath + "/"
-                    + Utils.getAudioName(System.currentTimeMillis());
-            FileOperationUtils.copyFile(oldPath, newPath);
+                    + Utils.getAudioName(System.currentTimeMillis() +  + 1000 * i);
+            FileOperationUtils.copyFile(it.next().toString(), newPath);
             MediaScannerConnection.scanFile(getApplication(),
                     new String[]{mTaskFilePath}, null, null);
 
@@ -582,8 +610,6 @@ public class SingleTaskActivity extends Activity {
             mFileInfo.setPicture(false);
             mFileInfo.setTaskFlowTimes(mTask.getTaskFlowTimes());
             startUploadFile(mFileInfo);
-        } else {
-            Utils.showToast(mToast, getString(R.string.invalid_audio), getApplicationContext());
         }
     }
 

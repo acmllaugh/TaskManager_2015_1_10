@@ -131,6 +131,21 @@
             android:maxLines="5"
             android:padding="3dip" />
     </TableRow>
+
+    <TableRow>
+
+        <TextView
+            android:layout_column="1"
+            android:text="@string/task_memo"
+            android:padding="3dip"
+            android:gravity="left" />
+
+        <TextView
+            android:id="@+id/detail_task_memo"
+            android:maxWidth="@dimen/task_details_width"
+            android:maxLines="10"
+            android:padding="3dip" />
+    </TableRow>
     <!--<TableRow>-->
     <!--<TextView-->
     <!--android:layout_column="1"-->
