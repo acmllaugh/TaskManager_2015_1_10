@@ -35,13 +35,26 @@
 
         <TextView
             android:layout_column="1"
+            android:text="@string/task_address_type"
+            android:padding="3dip"
+            android:gravity="left" />
+
+        <TextView
+            android:id="@+id/detail_task_address_type"
+            android:padding="3dip" />
+    </TableRow>
+
+    <TableRow>
+
+        <TextView
+            android:layout_column="1"
             android:text="@string/task_contact_info"
             android:padding="3dip"
             android:gravity="left" />
 
         <TextView
             android:id="@+id/detail_task_contact_info"
-            android:maxWidth="180dp"
+            android:maxWidth="@dimen/task_details_width"
             android:maxLines="5"
             android:padding="3dip" />
     </TableRow>
@@ -56,7 +69,7 @@
 
         <TextView
             android:id="@+id/detail_task_identity_card"
-            android:maxWidth="180dp"
+            android:maxWidth="@dimen/task_details_width"
             android:maxLines="5"
             android:padding="3dip" />
     </TableRow>
@@ -71,8 +84,21 @@
 
         <TextView
             android:id="@+id/detail_task_bank_card"
-            android:maxWidth="180dp"
+            android:maxWidth="@dimen/task_details_width"
             android:maxLines="5"
+            android:padding="3dip" />
+    </TableRow>
+
+    <TableRow>
+
+        <TextView
+            android:layout_column="1"
+            android:text="@string/card_name"
+            android:padding="3dip"
+            android:gravity="left" />
+
+        <TextView
+            android:id="@+id/detail_task_card_name"
             android:padding="3dip" />
     </TableRow>
 
@@ -86,7 +112,7 @@
 
         <TextView
             android:id="@+id/detail_task_case_amount"
-            android:maxWidth="180dp"
+            android:maxWidth="@dimen/task_details_width"
             android:maxLines="5"
             android:padding="3dip" />
     </TableRow>
@@ -101,8 +127,23 @@
 
         <TextView
             android:id="@+id/detail_task_has_payed"
-            android:maxWidth="180dp"
+            android:maxWidth="@dimen/task_details_width"
             android:maxLines="5"
+            android:padding="3dip" />
+    </TableRow>
+
+    <TableRow>
+
+        <TextView
+            android:layout_column="1"
+            android:text="@string/task_memo"
+            android:padding="3dip"
+            android:gravity="left" />
+
+        <TextView
+            android:id="@+id/detail_task_memo"
+            android:maxWidth="@dimen/task_details_width"
+            android:maxLines="10"
             android:padding="3dip" />
     </TableRow>
     <!--<TableRow>-->

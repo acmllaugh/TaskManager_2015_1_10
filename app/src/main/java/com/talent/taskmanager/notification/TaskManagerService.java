@@ -40,7 +40,7 @@ import java.util.List;
 
 public class TaskManagerService extends Service {
 
-    public static final int UPLOAD_FILE_QUERY_INTERVAL = 5; // every 5 min to query whether there is unfinished file.
+    public static final int UPLOAD_FILE_QUERY_INTERVAL = 1; // every 5 min to query whether there is unfinished file.
     private static final String TASK_NOTIFICATION_SERVICE = "task_notification_service";
     private static final int LOCATION_UPDATE_INTERVAL = 3; // every 3 minutes we update locations to database.
     private static final int NOTIFICATION_ID = 1;

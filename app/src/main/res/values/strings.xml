@@ -29,6 +29,7 @@
     <string name="task_name">Task Name:</string>
     <string name="task_person_name">Person Name:</string>
     <string name="task_address">Address:</string>
+    <string name="task_address_type">Address type:</string>
     <string name="task_contact_info">Contact Info:</string>
     <string name="confirm_know">Confirm</string>
     <string name="sign_in_success">Sign in successfully!</string>
@@ -44,6 +45,8 @@
     <string name="connection_out_of_time">Connection ran out of time, please try latter again.</string>
     <string name="identity_card">Identity Card:</string>
     <string name="bankCard">Bank Card:</string>
+    <string name="card_name">Card owner:</string>
+    <string name="task_memo">Memo:</string>
     <string name="case_amount">Case Amount:</string>
     <string name="has_payed">Has Paid:</string>
     <string name="change_task_status_fail">Change task status failed.</string>
@@ -93,5 +96,11 @@
     <string name="region">Region</string>
     <string name="filter_result">Match the filter with %d tasks</string>
     <string name="task_urgent">(Urgent)</string>
+    <string name="default_folder">/Camera</string>
+    <string name="action_send">Send</string>
+    <string name="picture_num"> pictures</string>
+    <string name="loading_now">Loading...</string>
+    <string name="max_num_toast">You can only upload 9 pictures once.</string>
+    <string name="max_num_record_toast">You can only upload %d audios once.</string>
 
 </resources>
