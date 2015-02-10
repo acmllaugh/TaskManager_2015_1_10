@@ -38,7 +38,8 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.talent.taskmanager.dada.UploadFileDao;
 import com.talent.taskmanager.file.FileInfo;
 import com.talent.taskmanager.file.FileOperationUtils;
-import com.talent.taskmanager.file.UploadFileThread;
+import com.talent.taskmanager.file.UploadFileCallback;
+import com.talent.taskmanager.file.UploadFileSingleton;
 import com.talent.taskmanager.network.NetworkState;
 
 import java.io.File;
@@ -79,7 +80,7 @@ public class SingleTaskActivity extends Activity {
     private String mTaskFilePath = null;
     private FileInfo mFileInfo = null;
     private UploadFileDao mUploadFileDao = null;
-    private UploadFileListener mUploadListener = null;
+    private UploadFileCallback mUploadFileCallback = null;
     public static final String DIRECTORY = Environment.getExternalStorageDirectory() + "/TaskFiles";
     private Menu mMenu;
     private ImageLoader mThumbnailLoader;
@@ -396,7 +397,8 @@ public class SingleTaskActivity extends Activity {
 
         mFileInfo = new FileInfo(ClientGlobal.getUserId(), mTask.getId());
         mUploadFileDao = new UploadFileDao(getApplicationContext());
-        mUploadListener = new UploadFileListener();
+        mUploadFileCallback = new UploadFileCallback(mUploadFileDao);
+        UploadFileSingleton.getInstance().setListener(mUploadFileCallback);
 
         mTaskFilePath = DIRECTORY + "/" + mTask.getId();
         if (!Utils.isSDCardAvailable()) {
@@ -501,10 +503,9 @@ public class SingleTaskActivity extends Activity {
         mGridImages.addView(createImageView(path), mGridImages.getChildCount());
 
         // upload image to server
-        mFileInfo.setFilePath(path);
-        mFileInfo.setPicture(true);
-        mFileInfo.setTaskFlowTimes(mTask.getTaskFlowTimes());
-        startUploadFile(mFileInfo);
+        FileInfo fileInfo = new FileInfo(ClientGlobal.getUserId(), mTask.getId(), path, true, 0, mTask.getTaskFlowTimes());
+        mUploadFileDao.insertUploadFileInfo(fileInfo);
+        UploadFileSingleton.getInstance().upLoadFile(fileInfo);
     }
 
     private void selectImageResult(Intent data) {
@@ -532,9 +533,9 @@ public class SingleTaskActivity extends Activity {
         Log.d("Chris", "selectImageResult, data = " + pathList);
         if (pathList == null)
             return;
-        for (int i = 0; i < pathList.size(); i++) {
-            Bitmap bitmap = FileOperationUtils.compressImageBySrc(pathList.get(i));
-            String name = Utils.getImageName(System.currentTimeMillis() + 1000 * i);
+        for (String path : pathList) {
+            Bitmap bitmap = FileOperationUtils.compressImageBySrc(path);
+            String name = FileOperationUtils.getFileNameByPath(path);
             final String newPath = mTaskFilePath + "/" + name;
             FileOperationUtils.saveBitmapToFile(bitmap, newPath);
             MediaScannerConnection.scanFile(getApplication(),
@@ -542,10 +543,9 @@ public class SingleTaskActivity extends Activity {
             Log.d("Chris", "selectImageResult, path = " + newPath);
             mGridImages.addView(createImageView(newPath), mGridImages.getChildCount());
             // upload image to server
-            mFileInfo.setFilePath(newPath);
-            mFileInfo.setPicture(true);
-            mFileInfo.setTaskFlowTimes(mTask.getTaskFlowTimes());
-            startUploadFile(mFileInfo);
+            FileInfo fileInfo = new FileInfo(ClientGlobal.getUserId(), mTask.getId(), newPath, true, 0, mTask.getTaskFlowTimes());
+            mUploadFileDao.insertUploadFileInfo(fileInfo);
+            UploadFileSingleton.getInstance().upLoadFile(fileInfo);
         }
     }
 
@@ -563,10 +563,9 @@ public class SingleTaskActivity extends Activity {
         Log.d("Chris", "recordAudioResult, path = " + newPath);
 
         // upload audio to server
-        mFileInfo.setFilePath(newPath);
-        mFileInfo.setPicture(false);
-        mFileInfo.setTaskFlowTimes(mTask.getTaskFlowTimes());
-        startUploadFile(mFileInfo);
+        FileInfo fileInfo = new FileInfo(ClientGlobal.getUserId(), mTask.getId(), newPath, false, 0, mTask.getTaskFlowTimes());
+        mUploadFileDao.insertUploadFileInfo(fileInfo);
+        UploadFileSingleton.getInstance().upLoadFile(fileInfo);
     }
 
     private void selectAudioResult(Intent data) {
@@ -595,21 +594,19 @@ public class SingleTaskActivity extends Activity {
         if (pathList == null)
             return;
         Iterator it = pathList.iterator();
-        int i = 0;
         while (it.hasNext()) {
-            String newPath = mTaskFilePath + "/"
-                    + Utils.getAudioName(System.currentTimeMillis() +  + 1000 * i);
-            FileOperationUtils.copyFile(it.next().toString(), newPath);
+            String oldPath = it.next().toString();
+            String newPath = mTaskFilePath + "/" + FileOperationUtils.getFileNameByPath(oldPath);
+            FileOperationUtils.copyFile(oldPath, newPath);
             MediaScannerConnection.scanFile(getApplication(),
                     new String[]{mTaskFilePath}, null, null);
 
             mGridAudios.addView(createAudioView(newPath), mGridAudios.getChildCount());
             Log.d("Chris", "selectAudioResult, path = " + newPath);
             // upload audio to server
-            mFileInfo.setFilePath(newPath);
-            mFileInfo.setPicture(false);
-            mFileInfo.setTaskFlowTimes(mTask.getTaskFlowTimes());
-            startUploadFile(mFileInfo);
+            FileInfo fileInfo = new FileInfo(ClientGlobal.getUserId(), mTask.getId(), newPath, false, 0, mTask.getTaskFlowTimes());
+            mUploadFileDao.insertUploadFileInfo(fileInfo);
+            UploadFileSingleton.getInstance().upLoadFile(fileInfo);
         }
     }
 
@@ -689,26 +686,6 @@ public class SingleTaskActivity extends Activity {
         }
     }
 
-    private class UploadFileListener implements UploadFileThread.UploadResultListener {
-
-        @Override
-        public void onUploadSucceed(FileInfo fileInfo) {
-            Message msg = new Message();
-            msg.what = MSG_UPLOAD_FILE_SUCCEED;
-            msg.obj = fileInfo.isPicture();
-            mResultHandler.sendMessage(msg);
-            // set result to 1 as finished
-            fileInfo.setUploadResult(1);
-            mUploadFileDao.insertUploadFileInfo(fileInfo);
-        }
-
-        @Override
-        public void onUploadFailed(FileInfo fileInfo) {
-            fileInfo.setUploadResult(0);
-            mUploadFileDao.insertUploadFileInfo(fileInfo);
-        }
-    }
-
     private void enableShowUploadButtons(boolean enable) {
         if (enable) {
             mBtnCapture.setVisibility(View.VISIBLE);
@@ -721,12 +698,6 @@ public class SingleTaskActivity extends Activity {
             mBtnSoundRecord.setVisibility(View.GONE);
             mBtnSelectAudio.setVisibility(View.GONE);
         }
-    }
-
-    private void startUploadFile(FileInfo fileInfo) {
-        UploadFileThread uploadFileThread = new UploadFileThread(fileInfo, getApplicationContext());
-        uploadFileThread.setListener(mUploadListener);
-        uploadFileThread.start();
     }
 
 }
