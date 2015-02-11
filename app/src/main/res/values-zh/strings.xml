@@ -44,6 +44,7 @@
     <string name="connection_out_of_time">连接超时，请稍后再试</string>
     <string name="identity_card">证件号：</string>
     <string name="bankCard">银行卡号：</string>
+    <string name="bank_name">所属银行:</string>
     <string name="card_name">持卡人:</string>
     <string name="task_memo">备注:</string>
     <string name="case_amount">委案金额：</string>

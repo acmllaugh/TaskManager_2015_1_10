@@ -45,7 +45,8 @@
     <string name="connection_out_of_time">Connection ran out of time, please try latter again.</string>
     <string name="identity_card">Identity Card:</string>
     <string name="bankCard">Bank Card:</string>
-    <string name="card_name">Card owner:</string>
+    <string name="bank_name">Bank Name:</string>
+    <string name="card_name">Card Owner:</string>
     <string name="task_memo">Memo:</string>
     <string name="case_amount">Case Amount:</string>
     <string name="has_payed">Has Paid:</string>

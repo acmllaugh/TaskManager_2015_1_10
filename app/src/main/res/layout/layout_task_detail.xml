@@ -90,6 +90,20 @@
     </TableRow>
 
     <TableRow>
+        <TextView
+            android:layout_column="1"
+            android:text="@string/bank_name"
+            android:padding="3dip"
+            android:gravity="left" />
+
+        <TextView
+            android:id="@+id/bank_name"
+            android:maxWidth="@dimen/task_details_width"
+            android:maxLines="5"
+            android:padding="3dip" />
+    </TableRow>
+
+    <TableRow>
 
         <TextView
             android:layout_column="1"

@@ -185,6 +185,7 @@ public class SingleTaskActivity extends Activity {
         ((TextView) findViewById(R.id.detail_task_address_type)).setText(mTask.getAddressType());
         ((TextView) findViewById(R.id.detail_task_card_name)).setText(mTask.getCardOwnedName());
         ((TextView) findViewById(R.id.detail_task_memo)).setText(mTask.getMemo());
+        ((TextView) findViewById(R.id.bank_name)).setText(mTask.getBank());
     }
 
     private void registerToEventBus() {
