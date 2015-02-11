@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -534,20 +535,15 @@ public class SingleTaskActivity extends Activity {
         Log.d("Chris", "selectImageResult, data = " + pathList);
         if (pathList == null)
             return;
-        for (String path : pathList) {
-            Bitmap bitmap = FileOperationUtils.compressImageBySrc(path);
-            String name = FileOperationUtils.getFileNameByPath(path);
+        MediaScannerConnection.scanFile(getApplication(),
+                new String[]{mTaskFilePath}, null, null);
+        for (String oldPath : pathList) {
+            String name = FileOperationUtils.getFileNameByPath(oldPath);
             final String newPath = mTaskFilePath + "/" + name;
-            FileOperationUtils.saveBitmapToFile(bitmap, newPath);
-            MediaScannerConnection.scanFile(getApplication(),
-                    new String[]{mTaskFilePath}, null, null);
+            new ImageSaveTask(oldPath, newPath).execute();
             Log.d("Chris", "selectImageResult, path = " + newPath);
-            mGridImages.addView(createImageView(newPath), mGridImages.getChildCount());
-            // upload image to server
-            FileInfo fileInfo = new FileInfo(ClientGlobal.getUserId(), mTask.getId(), newPath, true, 0, mTask.getTaskFlowTimes());
-            mUploadFileDao.insertUploadFileInfo(fileInfo);
-            UploadFileSingleton.getInstance().upLoadFile(fileInfo);
         }
+        Utils.showToast(mToast, getString(R.string.has_into_queue_toast), getApplicationContext());
     }
 
     private void recordAudioResult(Intent data) {
@@ -595,20 +591,15 @@ public class SingleTaskActivity extends Activity {
         if (pathList == null)
             return;
         Iterator it = pathList.iterator();
+        MediaScannerConnection.scanFile(getApplication(),
+                new String[]{mTaskFilePath}, null, null);
         while (it.hasNext()) {
             String oldPath = it.next().toString();
             String newPath = mTaskFilePath + "/" + FileOperationUtils.getFileNameByPath(oldPath);
-            FileOperationUtils.copyFile(oldPath, newPath);
-            MediaScannerConnection.scanFile(getApplication(),
-                    new String[]{mTaskFilePath}, null, null);
-
-            mGridAudios.addView(createAudioView(newPath), mGridAudios.getChildCount());
+            new AudioControlTask(oldPath, newPath).execute();
             Log.d("Chris", "selectAudioResult, path = " + newPath);
-            // upload audio to server
-            FileInfo fileInfo = new FileInfo(ClientGlobal.getUserId(), mTask.getId(), newPath, false, 0, mTask.getTaskFlowTimes());
-            mUploadFileDao.insertUploadFileInfo(fileInfo);
-            UploadFileSingleton.getInstance().upLoadFile(fileInfo);
         }
+        Utils.showToast(mToast, getString(R.string.has_into_queue_toast), getApplicationContext());
     }
 
     private ImageView createImageView(String path) {
@@ -698,6 +689,73 @@ public class SingleTaskActivity extends Activity {
             mBtnSelectImage.setVisibility(View.GONE);
             mBtnSoundRecord.setVisibility(View.GONE);
             mBtnSelectAudio.setVisibility(View.GONE);
+        }
+    }
+
+    private class AudioControlTask extends AsyncTask<Void, Void, Uri> {
+
+        private String oldPath;
+        private String newPath;
+
+        public AudioControlTask(String oldPath, String newPath) {
+            this.oldPath = oldPath;
+            this.newPath = newPath;
+        }
+
+        @Override
+        protected Uri doInBackground(Void... voids) {
+            if ( new File(newPath).exists()) {
+                return null;
+            }
+            FileOperationUtils.copyFile(oldPath, newPath);
+            return Uri.parse(newPath);
+        }
+
+        @Override
+        protected void onPostExecute(Uri uri) {
+            super.onPostExecute(uri);
+            if (uri != null) {
+                mGridAudios.addView(createAudioView(newPath), mGridAudios.getChildCount());
+                // upload audio to server
+                FileInfo fileInfo = new FileInfo(ClientGlobal.getUserId(), mTask.getId(), newPath, false, 0, mTask.getTaskFlowTimes());
+                mUploadFileDao.insertUploadFileInfo(fileInfo);
+                UploadFileSingleton.getInstance().upLoadFile(fileInfo);
+            }
+        }
+    }
+
+    private class ImageSaveTask extends AsyncTask<Void, Void, Uri> {
+
+        private String oldPath;
+        private String newPath;
+
+        public ImageSaveTask(String oldPath, String newPath) {
+            this.oldPath = oldPath;
+            this.newPath = newPath;
+        }
+
+        @Override
+        protected Uri doInBackground(Void... voids) {
+            String name = FileOperationUtils.getFileNameByPath(oldPath);
+            final String newPath = mTaskFilePath + "/" + name;
+            if ( new File(newPath).exists()) {
+                return null;
+            }
+            Bitmap bitmap = FileOperationUtils.compressImageBySrc(oldPath);
+            FileOperationUtils.saveBitmapToFile(bitmap, newPath);
+            return Uri.parse(newPath);
+        }
+
+        @Override
+        protected void onPostExecute(Uri uri) {
+            super.onPostExecute(uri);
+            if (uri != null) {
+                mGridImages.addView(createImageView(newPath), mGridImages.getChildCount());
+                // upload image to server
+                FileInfo fileInfo = new FileInfo(ClientGlobal.getUserId(), mTask.getId(), newPath, true, 0, mTask.getTaskFlowTimes());
+                mUploadFileDao.insertUploadFileInfo(fileInfo);
+                UploadFileSingleton.getInstance().upLoadFile(fileInfo);
+            }
         }
     }
 

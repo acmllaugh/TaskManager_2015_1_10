@@ -103,4 +103,6 @@
     <string name="loading_now">正在加载...</string>
     <string name="max_num_toast">你一次只能上传9张照片.</string>
     <string name="max_num_record_toast">你一次只能上传%d个录音文件.</string>
+    <string name="has_into_queue_toast">已加入上传队列.</string>
+
 </resources>

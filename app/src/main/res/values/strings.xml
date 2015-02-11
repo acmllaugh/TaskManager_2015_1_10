@@ -103,5 +103,6 @@
     <string name="loading_now">Loading...</string>
     <string name="max_num_toast">You can only upload 9 pictures once.</string>
     <string name="max_num_record_toast">You can only upload %d audios once.</string>
+    <string name="has_into_queue_toast">Has added into upload queue.</string>
 
 </resources>
