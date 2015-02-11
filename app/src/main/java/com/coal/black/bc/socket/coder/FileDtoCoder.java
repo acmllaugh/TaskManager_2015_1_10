@@ -17,7 +17,7 @@ public class FileDtoCoder {
 		try {
 			dout.writeInt(fileDto.getTaskId());// 设置task的id
 			dout.writeInt(fileDto.getTaskFlowTimes());
-			dout.write(fileDto.getFileName().getBytes());
+			dout.write(fileDto.getFileName().getBytes("UTF-8"));
 			dout.writeInt(fileDto.getFileLength());
 			dout.write(fileDto.isPicture() ? 1 : 0);
 			return out.toByteArray();
@@ -35,7 +35,7 @@ public class FileDtoCoder {
 			int fileNameLength = bytes.length - 13;
 			byte[] fileNameBytes = new byte[fileNameLength];
 			din.read(fileNameBytes, 0, fileNameLength);
-			String fileName = new String(fileNameBytes);
+			String fileName = new String(fileNameBytes, "UTF-8");
 			int fileLength = din.readInt();
 			boolean ispicture = din.read() == 1;
 			UploadFileDto fdto = new UploadFileDto();
