@@ -2,7 +2,7 @@ package com.talent.taskmanager.file;
 
 import android.util.Log;
 
-import com.talent.taskmanager.dada.UploadFileDao;
+import com.talent.taskmanager.data.UploadFileDao;
 
 /**
  * Created by chris on 15-2-10.

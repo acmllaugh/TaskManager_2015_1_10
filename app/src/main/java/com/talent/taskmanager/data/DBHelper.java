@@ -1,4 +1,4 @@
-package com.talent.taskmanager.dada;
+package com.talent.taskmanager.data;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -13,10 +13,17 @@ public class DBHelper extends SQLiteOpenHelper{
     private static final int DATABASE_VERSION = 1;
     /*	Tables	*/
     public static final String TABLE_FILES = "upload_files";
+    public static final String TABLE_TASK_COMMIT = "tasks_commit";
     /*	Columns	*/
     public static final String FIELD_ID = "_id";
     public static final String FIELD_TASK_ID = "task_id";
-    public static final String FIELD_USER_ID = "uset_id";
+    public static final String FIELD_USER_ID = "user_id";
+    /*  Columns used in task_commit table to save task commit information */
+    // 0: never visit again; 1: need visit again
+    public static final String FIELD_NEED_VISIT_AGAIN = "need_visit_again";
+    public static final String FIELD_ACTUAL_VISTOR = "actual_vistor";
+    public static final String FIELD_REPORT = "report";
+    /*  Task table columns end.*/
     // 0: not picture;  1: is picture
     public static final String FIELD_IS_PICTURE = "is_picture";
     public static final String FIELD_FILE_PATH = "file_path";
@@ -40,11 +47,20 @@ public class DBHelper extends SQLiteOpenHelper{
                 FIELD_ID, FIELD_TASK_ID, FIELD_USER_ID,
                 FIELD_IS_PICTURE, FIELD_FILE_PATH, FIELD_RESULT);
         sqLiteDatabase.execSQL(sql);
+        sql = String.format("CREATE TABLE %s " +
+                        "(%s INTEGER PRIMARY KEY AUTOINCREMENT, %s INTEGER, %s INTEGER," +
+                        " %s INTEGER, %s TEXT, %s TEXT)",
+                TABLE_TASK_COMMIT,
+                FIELD_ID, FIELD_TASK_ID, FIELD_USER_ID,
+                FIELD_NEED_VISIT_AGAIN, FIELD_ACTUAL_VISTOR, FIELD_REPORT);
+        sqLiteDatabase.execSQL(sql);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i2) {
         String sql = " DROP TABLE IF EXISTS " + TABLE_FILES;
+        sqLiteDatabase.execSQL(sql);
+        sql = " DROP TABLE IF EXISTS " + TABLE_TASK_COMMIT;
         sqLiteDatabase.execSQL(sql);
         onCreate(sqLiteDatabase);
     }

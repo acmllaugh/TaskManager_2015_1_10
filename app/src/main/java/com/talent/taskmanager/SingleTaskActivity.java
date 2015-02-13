@@ -36,15 +36,18 @@ import com.coal.black.bc.socket.dto.TaskDto;
 import com.coal.black.bc.socket.exception.ExceptionBase;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.talent.taskmanager.dada.UploadFileDao;
+import com.talent.taskmanager.data.TaskCommitInfoDAO;
+import com.talent.taskmanager.data.UploadFileDao;
 import com.talent.taskmanager.file.FileInfo;
 import com.talent.taskmanager.file.FileOperationUtils;
 import com.talent.taskmanager.file.UploadFileCallback;
 import com.talent.taskmanager.file.UploadFileSingleton;
 import com.talent.taskmanager.network.NetworkState;
+import com.talent.taskmanager.task.TaskCommitInfo;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -158,6 +161,10 @@ public class SingleTaskActivity extends Activity {
             }
         }
     };
+    public TaskCommitInfoDAO mCommitInfoDAO;
+    public Switch mNeedVisitAgainSwitch;
+    public EditText mActualVisitorEditText;
+    public EditText mTaskCommitEditText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -170,7 +177,7 @@ public class SingleTaskActivity extends Activity {
     }
 
     private void initVariables() {
-
+        mCommitInfoDAO = new TaskCommitInfoDAO(SingleTaskActivity.this);
     }
 
     private void showTaskDetailInformation() {
@@ -252,39 +259,120 @@ public class SingleTaskActivity extends Activity {
 
     private void showCommitTaskDialog() {
         final View view = getLayoutInflater().inflate(R.layout.dialog_commit_task, null);
+        getLastTaskCommitInfo(view);
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         AlertDialog dialog = builder.setView(view)
                 .setPositiveButton(getString(R.string.confirm), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        Switch needVisitAgainSwitch = (Switch) view.findViewById(R.id.switch_continue_visit);
-                        EditText actualVisitorEditText = (EditText) view.findViewById(R.id.edit_actual_visitor);
-                        EditText taskCommitEditText = (EditText) view.findViewById(R.id.edit_visit_report);
-                        boolean needVisitAgain = needVisitAgainSwitch.isChecked();
-                        String actualVisitor = actualVisitorEditText.getText().toString();
-                        String taskCommit = taskCommitEditText.getText().toString();
+                        boolean needVisitAgain = mNeedVisitAgainSwitch.isChecked();
+                        String actualVisitor = mActualVisitorEditText.getText().toString();
+                        String taskCommit = mTaskCommitEditText.getText().toString();
                         doCommitTask(needVisitAgain, actualVisitor, taskCommit);
                     }
                 })
-                .setNegativeButton(getString(R.string.cancel), null).create();
+                .setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Thread thread = new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                boolean needVisitAgain = mNeedVisitAgainSwitch.isChecked();
+                                String actualVisitor = mActualVisitorEditText.getText().toString();
+                                String taskCommit = mTaskCommitEditText.getText().toString();
+                                saveTaskCommitInfoToDataBase(needVisitAgain, actualVisitor, taskCommit);
+                            }
+                        });
+                        thread.start();
+                        dialogInterface.dismiss();
+                    }
+                }).create();
         dialog.show();
+    }
+
+    private void getLastTaskCommitInfo(View view) {
+        mNeedVisitAgainSwitch = (Switch) view.findViewById(R.id.switch_continue_visit);
+        mActualVisitorEditText = (EditText) view.findViewById(R.id.edit_actual_visitor);
+        mTaskCommitEditText = (EditText) view.findViewById(R.id.edit_visit_report);
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    int userID = ClientGlobal.getUserId();
+                    Integer taskID = mTask.getId();
+                    mCommitInfoDAO = new TaskCommitInfoDAO(SingleTaskActivity.this);
+                    mCommitInfoDAO.open();
+                    TaskCommitInfo commitInfo = mCommitInfoDAO.getTaskCommitInfo(userID, taskID);
+                    if (commitInfo != null) {
+                        mNeedVisitAgainSwitch.setChecked(commitInfo.isNeedVisitAgain());
+                        mActualVisitorEditText.setText(commitInfo.getRealVisitUser());
+                        mTaskCommitEditText.setText(commitInfo.getVisitReport());
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                } finally {
+                    mCommitInfoDAO.close();
+                }
+            }
+        });
+        thread.start();
     }
 
     private void doCommitTask(final boolean needVisitAgain, final String actualVisitor, final String taskCommit) {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
+                saveTaskCommitInfoToDataBase(needVisitAgain, actualVisitor, taskCommit);
                 CommitTaskHandler handler = new CommitTaskHandler();
                 CommitTaskResult result = handler.commitTask(
                         mTask.getId(), needVisitAgain, taskCommit, actualVisitor, mTask.getTaskFlowTimes());
                 Message msg = new Message();
                 msg.what = COMMIT_TASK_RESULT;
                 msg.obj = result;
+                if (result.isSuccess() && !needVisitAgain) {
+                    deleteCommitInfoInDB();
+                }
                 mResultHandler.sendMessage(msg);
             }
         });
         mProgressDialog = Utils.showProgressDialog(mProgressDialog, this);
         thread.start();
+    }
+
+    private void deleteCommitInfoInDB() {
+        try {
+            int userID = ClientGlobal.getUserId();
+            Integer taskID = mTask.getId();
+            TaskCommitInfoDAO mCommitInfoDAO = new TaskCommitInfoDAO(this);
+            mCommitInfoDAO = new TaskCommitInfoDAO(this);
+            mCommitInfoDAO.open();
+            TaskCommitInfo commitInfo = new TaskCommitInfo(taskID, userID, false, null, null);
+            mCommitInfoDAO.deleteTaskCommitInfo(commitInfo);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            mCommitInfoDAO.close();
+        }
+    }
+
+    private void saveTaskCommitInfoToDataBase(boolean needVisitAgain, String actualVisitor, String taskCommit) {
+        try {
+            int userID = ClientGlobal.getUserId();
+            Integer taskID = mTask.getId();
+            TaskCommitInfo commitInfo = new TaskCommitInfo(taskID, userID, needVisitAgain, taskCommit, actualVisitor);
+            mCommitInfoDAO = new TaskCommitInfoDAO(this);
+            mCommitInfoDAO.open();
+            if (mCommitInfoDAO.getTaskCommitInfo(userID, taskID) == null) {
+                // Add a new commit info in database.
+                mCommitInfoDAO.saveTaskCommitInfo(commitInfo);
+            } else {
+                mCommitInfoDAO.updateTaskCommitInfo(commitInfo);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            mCommitInfoDAO.close();
+        }
     }
 
     private void startTask() {
@@ -302,9 +390,9 @@ public class SingleTaskActivity extends Activity {
         Thread changeTaskStatusThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                Log.d("acmllaugh1", "run (line 121): start change task status.");
-                Log.d("acmllaugh1", "run (line 124): task id : " + mTask.getId());
-                Log.d("acmllaugh1", "run (line 125): user id : " + ClientGlobal.getUserId());
+//                Log.d("acmllaugh1", "run (line 121): start change task status.");
+//                Log.d("acmllaugh1", "run (line 124): task id : " + mTask.getId());
+//                Log.d("acmllaugh1", "run (line 125): user id : " + ClientGlobal.getUserId());
                 UserTaskStatusChangeHandler handler = new UserTaskStatusChangeHandler();
                 UserTaskStatusChangeResult result = handler.changeUserTaskStatus(
                         mTask.getId(), targetStatus, mTask.getTaskFlowTimes());
@@ -312,7 +400,7 @@ public class SingleTaskActivity extends Activity {
                 msg.what = MSG_CHANGE_TASK_STATUS;
                 msg.obj = result;
                 msg.arg1 = targetStatus;
-                Log.d("acmllaugh1", "run (line 128): result : " + result.isSuccess());
+//                Log.d("acmllaugh1", "run (line 128): result : " + result.isSuccess());
                 mResultHandler.sendMessage(msg);
             }
         });
