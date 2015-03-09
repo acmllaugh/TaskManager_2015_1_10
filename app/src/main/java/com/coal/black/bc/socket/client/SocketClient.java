@@ -8,6 +8,7 @@ import java.util.List;
 
 import com.coal.black.bc.socket.Constants;
 import com.coal.black.bc.socket.IDtoBase;
+import com.coal.black.bc.socket.client.deal.ApkQueryDeal;
 import com.coal.black.bc.socket.client.deal.ChangePwdDeal;
 import com.coal.black.bc.socket.client.deal.CommitTaskDeal;
 import com.coal.black.bc.socket.client.deal.LoginDeal;
@@ -58,7 +59,7 @@ public class SocketClient {
 		try {
 			socket = new Socket();
 			socket.connect(ClientGlobal.address, ClientGlobal.getSocketTimeOut());
-			socket.setSoLinger(true, 5);
+			socket.setSoLinger(true, 30);
 			socket.setTcpNoDelay(true);
 			socket.setSoTimeout(ClientGlobal.getSocketTimeOut());
 			out = socket.getOutputStream();
@@ -96,6 +97,9 @@ public class SocketClient {
 			case CommitTask:
 				clientDto.setOperateType(OperateType.CommitTask);
 				return new CommitTaskDeal().deal(clientDto, objDtoList, in, out);
+			case ApkLastedVersionQuery:
+				clientDto.setOperateType(OperateType.ApkLastedVersionQuery);
+				return new ApkQueryDeal().deal(clientDto, in, out);
 			default:
 				break;
 			}

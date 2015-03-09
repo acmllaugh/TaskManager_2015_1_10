@@ -32,7 +32,7 @@ public class UploadFileDeal {
 		out.write(fileBytes);// 向客户端写入UploadFileDto信息
 
 		ServerReturnFlagDto srf = readSrf(in);// 读取服务器端的回应
-		if (srf == null) {// 读取回应除了问题，直接返回
+		if (srf == null) {// 读取回应出了问题，直接返回
 			return generateSrfLengthErrorResult();
 		}
 

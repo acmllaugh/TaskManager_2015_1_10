@@ -35,8 +35,6 @@ public class InputStreamUtils {
 			}
 		}
 		if (total < dataLength) {// 读取结束了的话，发现total和datalength相比要小，则抛出异常
-			System.out.println(dataLength);
-			System.out.println(length);
 			throw new IOException("The total readed bytes length is " + total + " is less than need read length " + dataLength);
 		}
 		return data;

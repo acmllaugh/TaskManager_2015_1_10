@@ -43,5 +43,8 @@ public class Constants {
 	public static String CHANGE_PWD_CODER_FORM_WIRE_ERROR = "Change.Pwd.Coder.from.Wire.Exception";
 
 	public static String COMMIT_TASK_CODER_TO_WIRE_ERROR = "Commit.Task.Coder.To.Wire.Exception";
-	public static String COMMIT_TASK_CODER_FORM_WIRE_ERROR = "COmmit.Task.Coder.from.Wire.Exception";
+	public static String COMMIT_TASK_CODER_FORM_WIRE_ERROR = "Commit.Task.Coder.from.Wire.Exception";
+
+	public static String APK_LASTED_VERSION_CODER_TO_WIRE_ERROR = "Apk.Lasted.Version.Coder.To.Wire.Exception";
+	public static String APK_LASTED_VERSION_CODER_FORM_WIRE_ERROR = "Apk.Lasted.Version.from.Wire.Exception";
 }

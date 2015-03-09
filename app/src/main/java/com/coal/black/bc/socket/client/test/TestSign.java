@@ -16,8 +16,9 @@ public class TestSign {
 	private static final Random random = new Random();
 
 	public static void main(String[] args) {
+		ClientGlobal.setMacAddress("F8:A4:5F:1B:AA:7C");
 		UserLoginHandler userLogin = new UserLoginHandler();
-		LoginResult loginResult = userLogin.login("wanghui", "123456");
+		LoginResult loginResult = userLogin.login("zb", "123456");
 		if (loginResult.isSuccess()) {
 			ClientGlobal.setUserId(loginResult.getUserId());
 

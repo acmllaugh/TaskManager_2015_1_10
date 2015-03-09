@@ -11,7 +11,8 @@ public enum OperateType {
 	TaskQryUserNewTaskList((byte) 7), // 查询用户新的任务的列表
 	TaskQryByID((byte) 8), // 根据用户Id查询任务列表信息
 	ChangePwd((byte) 9), // 修改用户密码
-	CommitTask((byte) 10);// 提交任务
+	CommitTask((byte) 10), // 提交任务
+	ApkLastedVersionQuery((byte) 11);// 查询Apk的最新版本
 
 	private byte value;
 
@@ -45,6 +46,8 @@ public enum OperateType {
 			return ChangePwd;
 		case 10:
 			return CommitTask;// 提交任务
+		case 11:
+			return ApkLastedVersionQuery;
 		default:
 			return Error;
 		}
