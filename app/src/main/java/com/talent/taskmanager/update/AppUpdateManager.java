@@ -45,7 +45,7 @@ public class AppUpdateManager {
     private Dialog mDownloadDialog;
     private boolean mCancelDownload = false;
 
-    private static final String APK_DOWNLOAD_URL = "http://223.68.133.15:12346/app-update/appupdate.do";
+    private static final String APK_DOWNLOAD_URL = "http://223.68.133.8:12346/app-update/appupdate.do";
     public static final String APK_DOWNLOAD_SAVE_DIR = Environment.getExternalStorageDirectory() + "/TaskFiles";
     private static final String APK_DOWNLOAD_SAVE_NAME = "TaskManager.apk";
 
