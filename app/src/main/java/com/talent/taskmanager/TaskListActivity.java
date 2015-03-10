@@ -37,6 +37,7 @@ import com.talent.taskmanager.location.LocationManager;
 import com.talent.taskmanager.network.NetworkState;
 import com.talent.taskmanager.notification.TaskManagerService;
 import com.talent.taskmanager.task.TaskListAdapter;
+import com.talent.taskmanager.update.AppUpdateManager;
 
 import java.util.ArrayList;
 
@@ -422,6 +423,13 @@ public class TaskListActivity extends Activity {
 
         if (mBaiduLocationManager != null)
             mBaiduLocationManager.recordLocation(true);
+
+        checkAppUpdate();
+    }
+
+    private void checkAppUpdate() {
+        AppUpdateManager appUpdateManager = new AppUpdateManager(TaskListActivity.this);
+        appUpdateManager.checkIfNeedUpdate();
     }
 
     @Override

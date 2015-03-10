@@ -104,5 +104,10 @@
     <string name="max_num_toast">You can only upload 9 pictures once.</string>
     <string name="max_num_record_toast">You can only upload %d audios once.</string>
     <string name="has_into_queue_toast">Has added into upload queue.</string>
+    <string name="app_update_title">App update info</string>
+    <string name="app_update_message">Current version is old, please click to update.</string>
+    <string name="update">Update</string>
+    <string name="app_updating">Application is updating</string>
+    <string name="app_cancel_update">Cancel updating</string>
 
 </resources>

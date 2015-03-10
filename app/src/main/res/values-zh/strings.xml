@@ -104,5 +104,10 @@
     <string name="max_num_toast">你一次只能上传9张照片.</string>
     <string name="max_num_record_toast">你一次只能上传%d个录音文件.</string>
     <string name="has_into_queue_toast">已加入上传队列.</string>
+    <string name="app_update_title">应用更新</string>
+    <string name="app_update_message">检测到当前应用不是最新版本，请点击更新！</string>
+    <string name="update">更新</string>
+    <string name="app_updating">应用更新中</string>
+    <string name="app_cancel_update">取消更新</string>
 
 </resources>
