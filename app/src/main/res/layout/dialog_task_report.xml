@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:padding="10dp">
+
+    <Switch
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:text="@string/need_continue_visit"
+        android:id="@+id/switch_continue_visit"
+        android:textOff="@string/no"
+        android:textOn="@string/yes"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/txt_visitor_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/switch_continue_visit"
+        android:text="@string/actual_visitor"
+        android:visibility="gone"/>
+
+    <EditText
+        android:id="@+id/edit_actual_visitor"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/edittext_background"
+        android:layout_below="@id/switch_continue_visit"
+        android:layout_toRightOf="@id/txt_visitor_title"
+        android:layout_toEndOf="@id/txt_visitor_title"
+        android:singleLine="true"
+        android:layout_marginLeft="5dp"
+        android:visibility="gone"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="@string/task_report"
+        android:id="@+id/textView"
+        android:layout_below="@+id/txt_visitor_title"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_marginTop="3dp"
+        android:id="@+id/edit_visit_report"
+        android:layout_below="@+id/textView"
+        android:background="@drawable/edittext_background"
+        android:gravity="top|left"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+</RelativeLayout>

@@ -109,5 +109,6 @@
     <string name="update">Update</string>
     <string name="app_updating">Application is updating</string>
     <string name="app_cancel_update">Cancel updating</string>
+    <string name="edit_report">Edit report</string>
 
 </resources>

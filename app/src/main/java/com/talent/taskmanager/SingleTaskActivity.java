@@ -14,6 +14,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
+import android.text.Selection;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -112,6 +113,7 @@ public class SingleTaskActivity extends Activity {
                             if (msg.arg1 == UserTaskStatusCommon.IN_DEALING) {
                                 Utils.showToast(mToast, getString(R.string.task_accept_success), getApplicationContext());
                                 showMenuItem(R.id.action_start_task, false);
+                                showMenuItem(R.id.action_edit_report, true);
                                 showMenuItem(R.id.action_start_commit, true);
                                 showMenuItem(R.id.action_roll_back_task, true);
                                 enableShowUploadButtons(true);
@@ -233,6 +235,9 @@ public class SingleTaskActivity extends Activity {
             case R.id.action_start_task:
                 startTask();
                 break;
+            case R.id.action_edit_report:
+                showTaskReportDialog();
+                break;
             case R.id.action_start_commit:
                 showCommitTaskDialog();
                 break;
@@ -284,6 +289,37 @@ public class SingleTaskActivity extends Activity {
                             }
                         });
                         thread.start();
+                        dialogInterface.dismiss();
+                    }
+                }).create();
+        dialog.show();
+    }
+
+    private void showTaskReportDialog() {
+        final View view = getLayoutInflater().inflate(R.layout.dialog_task_report, null);
+        getLastTaskCommitInfo(view);
+//        mTaskCommitEditText.setSelection(mTaskCommitEditText.getText().length());
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        AlertDialog dialog = builder.setView(view)
+                .setPositiveButton(getString(R.string.save), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Thread thread = new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                            boolean needVisitAgain = mNeedVisitAgainSwitch.isChecked();
+                            String actualVisitor = mActualVisitorEditText.getText().toString();
+                            String taskCommit = mTaskCommitEditText.getText().toString();
+                            saveTaskCommitInfoToDataBase(needVisitAgain, actualVisitor, taskCommit);
+                            }
+                        });
+                        thread.start();
+                        dialogInterface.dismiss();
+                    }
+                })
+                .setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
                         dialogInterface.dismiss();
                     }
                 }).create();
@@ -436,10 +472,12 @@ public class SingleTaskActivity extends Activity {
                 changeTaskStatus(UserTaskStatusCommon.HAS_READED);
                 showMenuItem(R.id.action_roll_back_task, false);
                 showMenuItem(R.id.action_start_commit, false);
+                showMenuItem(R.id.action_edit_report, false);
                 break;
             case UserTaskStatusCommon.HAS_READED:
                 showMenuItem(R.id.action_roll_back_task, false);
                 showMenuItem(R.id.action_start_commit, false);
+                showMenuItem(R.id.action_edit_report, false);
                 break;
             case UserTaskStatusCommon.IN_DEALING:
                 showMenuItem(R.id.action_start_task, false);

@@ -7,14 +7,19 @@
         android:orderInCategory="100"
         android:showAsAction="always" />
 
+    <item android:id="@+id/action_edit_report"
+        android:title="@string/edit_report"
+        android:orderInCategory="100"
+        android:showAsAction="always" />
+
     <item android:id="@+id/action_start_commit"
         android:title="@string/commit_task"
         android:orderInCategory="100"
-        android:showAsAction="always" />
+        android:showAsAction="never" />
 
     <item android:id="@+id/action_roll_back_task"
         android:title="@string/roll_back_task"
         android:orderInCategory="100"
-        android:showAsAction="always" />
+        android:showAsAction="never" />
 
 </menu>

@@ -109,5 +109,6 @@
     <string name="update">更新</string>
     <string name="app_updating">应用更新中</string>
     <string name="app_cancel_update">取消更新</string>
+    <string name="edit_report">编辑报告</string>
 
 </resources>
