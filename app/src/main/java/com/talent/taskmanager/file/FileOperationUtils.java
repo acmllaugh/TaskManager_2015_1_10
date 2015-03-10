@@ -230,4 +230,21 @@ public class FileOperationUtils {
         }
         return path;
     }
+
+    /**
+     * eg: /../../**.mp3 -> **.mp3
+     * @param path
+     * @return
+     */
+    public static String getFileNameByPath(String path) {
+        if (path == null)
+            return null;
+        int start = path.lastIndexOf("/");
+        if (start != -1) {
+            return path.substring(start + 1, path.length());
+        } else {
+            return null;
+        }
+    }
+
 }

@@ -5,6 +5,8 @@ import android.app.ActivityManager;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
@@ -196,6 +198,38 @@ public class Utils {
      */
     public static boolean get24HourMode(final Context context) {
         return DateFormat.is24HourFormat(context);
+    }
+
+    /**
+     * Get version code of current apk
+     * @param context
+     * @return
+     */
+    public static int getVersionCode(Context context) {
+        int verCode = -1;
+        try {
+            PackageManager manager = context.getPackageManager();
+            PackageInfo info = manager.getPackageInfo(context.getPackageName(), 0);
+            verCode = info.versionCode;
+        } catch (PackageManager.NameNotFoundException e) {
+        }
+        return verCode;
+    }
+
+    /**
+     * Get version name of current apk
+     * @param context
+     * @return
+     */
+    public static String getVersionName(Context context) {
+        String verName = "";
+        try {
+            PackageManager manager = context.getPackageManager();
+            PackageInfo info = manager.getPackageInfo(context.getPackageName(), 0);
+            verName = info.versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+        }
+        return verName;
     }
 
 }

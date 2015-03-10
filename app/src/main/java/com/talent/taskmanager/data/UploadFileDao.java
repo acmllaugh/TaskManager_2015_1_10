@@ -1,4 +1,4 @@
-package com.talent.taskmanager.dada;
+package com.talent.taskmanager.data;
 
 import android.content.ContentValues;
 import android.content.Context;

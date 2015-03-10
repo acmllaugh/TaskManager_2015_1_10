@@ -8,11 +8,13 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
+import android.text.Selection;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -35,14 +37,18 @@ import com.coal.black.bc.socket.dto.TaskDto;
 import com.coal.black.bc.socket.exception.ExceptionBase;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.talent.taskmanager.dada.UploadFileDao;
+import com.talent.taskmanager.data.TaskCommitInfoDAO;
+import com.talent.taskmanager.data.UploadFileDao;
 import com.talent.taskmanager.file.FileInfo;
 import com.talent.taskmanager.file.FileOperationUtils;
-import com.talent.taskmanager.file.UploadFileThread;
+import com.talent.taskmanager.file.UploadFileCallback;
+import com.talent.taskmanager.file.UploadFileSingleton;
 import com.talent.taskmanager.network.NetworkState;
+import com.talent.taskmanager.task.TaskCommitInfo;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -79,7 +85,7 @@ public class SingleTaskActivity extends Activity {
     private String mTaskFilePath = null;
     private FileInfo mFileInfo = null;
     private UploadFileDao mUploadFileDao = null;
-    private UploadFileListener mUploadListener = null;
+    private UploadFileCallback mUploadFileCallback = null;
     public static final String DIRECTORY = Environment.getExternalStorageDirectory() + "/TaskFiles";
     private Menu mMenu;
     private ImageLoader mThumbnailLoader;
@@ -107,6 +113,7 @@ public class SingleTaskActivity extends Activity {
                             if (msg.arg1 == UserTaskStatusCommon.IN_DEALING) {
                                 Utils.showToast(mToast, getString(R.string.task_accept_success), getApplicationContext());
                                 showMenuItem(R.id.action_start_task, false);
+                                showMenuItem(R.id.action_edit_report, true);
                                 showMenuItem(R.id.action_start_commit, true);
                                 showMenuItem(R.id.action_roll_back_task, true);
                                 enableShowUploadButtons(true);
@@ -156,6 +163,10 @@ public class SingleTaskActivity extends Activity {
             }
         }
     };
+    public TaskCommitInfoDAO mCommitInfoDAO;
+    public Switch mNeedVisitAgainSwitch;
+    public EditText mActualVisitorEditText;
+    public EditText mTaskCommitEditText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -168,7 +179,7 @@ public class SingleTaskActivity extends Activity {
     }
 
     private void initVariables() {
-
+        mCommitInfoDAO = new TaskCommitInfoDAO(SingleTaskActivity.this);
     }
 
     private void showTaskDetailInformation() {
@@ -184,6 +195,7 @@ public class SingleTaskActivity extends Activity {
         ((TextView) findViewById(R.id.detail_task_address_type)).setText(mTask.getAddressType());
         ((TextView) findViewById(R.id.detail_task_card_name)).setText(mTask.getCardOwnedName());
         ((TextView) findViewById(R.id.detail_task_memo)).setText(mTask.getMemo());
+        ((TextView) findViewById(R.id.bank_name)).setText(mTask.getBank());
     }
 
     private void registerToEventBus() {
@@ -223,6 +235,9 @@ public class SingleTaskActivity extends Activity {
             case R.id.action_start_task:
                 startTask();
                 break;
+            case R.id.action_edit_report:
+                showTaskReportDialog();
+                break;
             case R.id.action_start_commit:
                 showCommitTaskDialog();
                 break;
@@ -249,39 +264,151 @@ public class SingleTaskActivity extends Activity {
 
     private void showCommitTaskDialog() {
         final View view = getLayoutInflater().inflate(R.layout.dialog_commit_task, null);
+        getLastTaskCommitInfo(view);
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         AlertDialog dialog = builder.setView(view)
                 .setPositiveButton(getString(R.string.confirm), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        Switch needVisitAgainSwitch = (Switch) view.findViewById(R.id.switch_continue_visit);
-                        EditText actualVisitorEditText = (EditText) view.findViewById(R.id.edit_actual_visitor);
-                        EditText taskCommitEditText = (EditText) view.findViewById(R.id.edit_visit_report);
-                        boolean needVisitAgain = needVisitAgainSwitch.isChecked();
-                        String actualVisitor = actualVisitorEditText.getText().toString();
-                        String taskCommit = taskCommitEditText.getText().toString();
+                        boolean needVisitAgain = mNeedVisitAgainSwitch.isChecked();
+                        String actualVisitor = mActualVisitorEditText.getText().toString();
+                        String taskCommit = mTaskCommitEditText.getText().toString();
                         doCommitTask(needVisitAgain, actualVisitor, taskCommit);
                     }
                 })
-                .setNegativeButton(getString(R.string.cancel), null).create();
+                .setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Thread thread = new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                boolean needVisitAgain = mNeedVisitAgainSwitch.isChecked();
+                                String actualVisitor = mActualVisitorEditText.getText().toString();
+                                String taskCommit = mTaskCommitEditText.getText().toString();
+                                saveTaskCommitInfoToDataBase(needVisitAgain, actualVisitor, taskCommit);
+                            }
+                        });
+                        thread.start();
+                        dialogInterface.dismiss();
+                    }
+                }).create();
         dialog.show();
+    }
+
+    private void showTaskReportDialog() {
+        final View view = getLayoutInflater().inflate(R.layout.dialog_task_report, null);
+        getLastTaskCommitInfo(view);
+//        mTaskCommitEditText.setSelection(mTaskCommitEditText.getText().length());
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        AlertDialog dialog = builder.setView(view)
+                .setPositiveButton(getString(R.string.save), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Thread thread = new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                            boolean needVisitAgain = mNeedVisitAgainSwitch.isChecked();
+                            String actualVisitor = mActualVisitorEditText.getText().toString();
+                            String taskCommit = mTaskCommitEditText.getText().toString();
+                            saveTaskCommitInfoToDataBase(needVisitAgain, actualVisitor, taskCommit);
+                            }
+                        });
+                        thread.start();
+                        dialogInterface.dismiss();
+                    }
+                })
+                .setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                }).create();
+        dialog.show();
+    }
+
+    private void getLastTaskCommitInfo(View view) {
+        mNeedVisitAgainSwitch = (Switch) view.findViewById(R.id.switch_continue_visit);
+        mActualVisitorEditText = (EditText) view.findViewById(R.id.edit_actual_visitor);
+        mTaskCommitEditText = (EditText) view.findViewById(R.id.edit_visit_report);
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    int userID = ClientGlobal.getUserId();
+                    Integer taskID = mTask.getId();
+                    mCommitInfoDAO = new TaskCommitInfoDAO(SingleTaskActivity.this);
+                    mCommitInfoDAO.open();
+                    TaskCommitInfo commitInfo = mCommitInfoDAO.getTaskCommitInfo(userID, taskID);
+                    if (commitInfo != null) {
+                        mNeedVisitAgainSwitch.setChecked(commitInfo.isNeedVisitAgain());
+                        mActualVisitorEditText.setText(commitInfo.getRealVisitUser());
+                        mTaskCommitEditText.setText(commitInfo.getVisitReport());
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                } finally {
+                    mCommitInfoDAO.close();
+                }
+            }
+        });
+        thread.start();
     }
 
     private void doCommitTask(final boolean needVisitAgain, final String actualVisitor, final String taskCommit) {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
+                saveTaskCommitInfoToDataBase(needVisitAgain, actualVisitor, taskCommit);
                 CommitTaskHandler handler = new CommitTaskHandler();
                 CommitTaskResult result = handler.commitTask(
                         mTask.getId(), needVisitAgain, taskCommit, actualVisitor, mTask.getTaskFlowTimes());
                 Message msg = new Message();
                 msg.what = COMMIT_TASK_RESULT;
                 msg.obj = result;
+                if (result.isSuccess() && !needVisitAgain) {
+                    deleteCommitInfoInDB();
+                }
                 mResultHandler.sendMessage(msg);
             }
         });
         mProgressDialog = Utils.showProgressDialog(mProgressDialog, this);
         thread.start();
+    }
+
+    private void deleteCommitInfoInDB() {
+        try {
+            int userID = ClientGlobal.getUserId();
+            Integer taskID = mTask.getId();
+            TaskCommitInfoDAO mCommitInfoDAO = new TaskCommitInfoDAO(this);
+            mCommitInfoDAO = new TaskCommitInfoDAO(this);
+            mCommitInfoDAO.open();
+            TaskCommitInfo commitInfo = new TaskCommitInfo(taskID, userID, false, null, null);
+            mCommitInfoDAO.deleteTaskCommitInfo(commitInfo);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            mCommitInfoDAO.close();
+        }
+    }
+
+    private void saveTaskCommitInfoToDataBase(boolean needVisitAgain, String actualVisitor, String taskCommit) {
+        try {
+            int userID = ClientGlobal.getUserId();
+            Integer taskID = mTask.getId();
+            TaskCommitInfo commitInfo = new TaskCommitInfo(taskID, userID, needVisitAgain, taskCommit, actualVisitor);
+            mCommitInfoDAO = new TaskCommitInfoDAO(this);
+            mCommitInfoDAO.open();
+            if (mCommitInfoDAO.getTaskCommitInfo(userID, taskID) == null) {
+                // Add a new commit info in database.
+                mCommitInfoDAO.saveTaskCommitInfo(commitInfo);
+            } else {
+                mCommitInfoDAO.updateTaskCommitInfo(commitInfo);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            mCommitInfoDAO.close();
+        }
     }
 
     private void startTask() {
@@ -299,9 +426,9 @@ public class SingleTaskActivity extends Activity {
         Thread changeTaskStatusThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                Log.d("acmllaugh1", "run (line 121): start change task status.");
-                Log.d("acmllaugh1", "run (line 124): task id : " + mTask.getId());
-                Log.d("acmllaugh1", "run (line 125): user id : " + ClientGlobal.getUserId());
+//                Log.d("acmllaugh1", "run (line 121): start change task status.");
+//                Log.d("acmllaugh1", "run (line 124): task id : " + mTask.getId());
+//                Log.d("acmllaugh1", "run (line 125): user id : " + ClientGlobal.getUserId());
                 UserTaskStatusChangeHandler handler = new UserTaskStatusChangeHandler();
                 UserTaskStatusChangeResult result = handler.changeUserTaskStatus(
                         mTask.getId(), targetStatus, mTask.getTaskFlowTimes());
@@ -309,7 +436,7 @@ public class SingleTaskActivity extends Activity {
                 msg.what = MSG_CHANGE_TASK_STATUS;
                 msg.obj = result;
                 msg.arg1 = targetStatus;
-                Log.d("acmllaugh1", "run (line 128): result : " + result.isSuccess());
+//                Log.d("acmllaugh1", "run (line 128): result : " + result.isSuccess());
                 mResultHandler.sendMessage(msg);
             }
         });
@@ -345,10 +472,12 @@ public class SingleTaskActivity extends Activity {
                 changeTaskStatus(UserTaskStatusCommon.HAS_READED);
                 showMenuItem(R.id.action_roll_back_task, false);
                 showMenuItem(R.id.action_start_commit, false);
+                showMenuItem(R.id.action_edit_report, false);
                 break;
             case UserTaskStatusCommon.HAS_READED:
                 showMenuItem(R.id.action_roll_back_task, false);
                 showMenuItem(R.id.action_start_commit, false);
+                showMenuItem(R.id.action_edit_report, false);
                 break;
             case UserTaskStatusCommon.IN_DEALING:
                 showMenuItem(R.id.action_start_task, false);
@@ -396,7 +525,8 @@ public class SingleTaskActivity extends Activity {
 
         mFileInfo = new FileInfo(ClientGlobal.getUserId(), mTask.getId());
         mUploadFileDao = new UploadFileDao(getApplicationContext());
-        mUploadListener = new UploadFileListener();
+        mUploadFileCallback = new UploadFileCallback(mUploadFileDao);
+        UploadFileSingleton.getInstance().setListener(mUploadFileCallback);
 
         mTaskFilePath = DIRECTORY + "/" + mTask.getId();
         if (!Utils.isSDCardAvailable()) {
@@ -501,10 +631,9 @@ public class SingleTaskActivity extends Activity {
         mGridImages.addView(createImageView(path), mGridImages.getChildCount());
 
         // upload image to server
-        mFileInfo.setFilePath(path);
-        mFileInfo.setPicture(true);
-        mFileInfo.setTaskFlowTimes(mTask.getTaskFlowTimes());
-        startUploadFile(mFileInfo);
+        FileInfo fileInfo = new FileInfo(ClientGlobal.getUserId(), mTask.getId(), path, true, 0, mTask.getTaskFlowTimes());
+        mUploadFileDao.insertUploadFileInfo(fileInfo);
+        UploadFileSingleton.getInstance().upLoadFile(fileInfo);
     }
 
     private void selectImageResult(Intent data) {
@@ -532,21 +661,15 @@ public class SingleTaskActivity extends Activity {
         Log.d("Chris", "selectImageResult, data = " + pathList);
         if (pathList == null)
             return;
-        for (int i = 0; i < pathList.size(); i++) {
-            Bitmap bitmap = FileOperationUtils.compressImageBySrc(pathList.get(i));
-            String name = Utils.getImageName(System.currentTimeMillis() + 1000 * i);
+        MediaScannerConnection.scanFile(getApplication(),
+                new String[]{mTaskFilePath}, null, null);
+        for (String oldPath : pathList) {
+            String name = FileOperationUtils.getFileNameByPath(oldPath);
             final String newPath = mTaskFilePath + "/" + name;
-            FileOperationUtils.saveBitmapToFile(bitmap, newPath);
-            MediaScannerConnection.scanFile(getApplication(),
-                    new String[]{mTaskFilePath}, null, null);
+            new ImageSaveTask(oldPath, newPath).execute();
             Log.d("Chris", "selectImageResult, path = " + newPath);
-            mGridImages.addView(createImageView(newPath), mGridImages.getChildCount());
-            // upload image to server
-            mFileInfo.setFilePath(newPath);
-            mFileInfo.setPicture(true);
-            mFileInfo.setTaskFlowTimes(mTask.getTaskFlowTimes());
-            startUploadFile(mFileInfo);
         }
+        Utils.showToast(mToast, getString(R.string.has_into_queue_toast), getApplicationContext());
     }
 
     private void recordAudioResult(Intent data) {
@@ -563,10 +686,9 @@ public class SingleTaskActivity extends Activity {
         Log.d("Chris", "recordAudioResult, path = " + newPath);
 
         // upload audio to server
-        mFileInfo.setFilePath(newPath);
-        mFileInfo.setPicture(false);
-        mFileInfo.setTaskFlowTimes(mTask.getTaskFlowTimes());
-        startUploadFile(mFileInfo);
+        FileInfo fileInfo = new FileInfo(ClientGlobal.getUserId(), mTask.getId(), newPath, false, 0, mTask.getTaskFlowTimes());
+        mUploadFileDao.insertUploadFileInfo(fileInfo);
+        UploadFileSingleton.getInstance().upLoadFile(fileInfo);
     }
 
     private void selectAudioResult(Intent data) {
@@ -595,22 +717,15 @@ public class SingleTaskActivity extends Activity {
         if (pathList == null)
             return;
         Iterator it = pathList.iterator();
-        int i = 0;
+        MediaScannerConnection.scanFile(getApplication(),
+                new String[]{mTaskFilePath}, null, null);
         while (it.hasNext()) {
-            String newPath = mTaskFilePath + "/"
-                    + Utils.getAudioName(System.currentTimeMillis() +  + 1000 * i);
-            FileOperationUtils.copyFile(it.next().toString(), newPath);
-            MediaScannerConnection.scanFile(getApplication(),
-                    new String[]{mTaskFilePath}, null, null);
-
-            mGridAudios.addView(createAudioView(newPath), mGridAudios.getChildCount());
+            String oldPath = it.next().toString();
+            String newPath = mTaskFilePath + "/" + FileOperationUtils.getFileNameByPath(oldPath);
+            new AudioControlTask(oldPath, newPath).execute();
             Log.d("Chris", "selectAudioResult, path = " + newPath);
-            // upload audio to server
-            mFileInfo.setFilePath(newPath);
-            mFileInfo.setPicture(false);
-            mFileInfo.setTaskFlowTimes(mTask.getTaskFlowTimes());
-            startUploadFile(mFileInfo);
         }
+        Utils.showToast(mToast, getString(R.string.has_into_queue_toast), getApplicationContext());
     }
 
     private ImageView createImageView(String path) {
@@ -689,26 +804,6 @@ public class SingleTaskActivity extends Activity {
         }
     }
 
-    private class UploadFileListener implements UploadFileThread.UploadResultListener {
-
-        @Override
-        public void onUploadSucceed(FileInfo fileInfo) {
-            Message msg = new Message();
-            msg.what = MSG_UPLOAD_FILE_SUCCEED;
-            msg.obj = fileInfo.isPicture();
-            mResultHandler.sendMessage(msg);
-            // set result to 1 as finished
-            fileInfo.setUploadResult(1);
-            mUploadFileDao.insertUploadFileInfo(fileInfo);
-        }
-
-        @Override
-        public void onUploadFailed(FileInfo fileInfo) {
-            fileInfo.setUploadResult(0);
-            mUploadFileDao.insertUploadFileInfo(fileInfo);
-        }
-    }
-
     private void enableShowUploadButtons(boolean enable) {
         if (enable) {
             mBtnCapture.setVisibility(View.VISIBLE);
@@ -723,10 +818,71 @@ public class SingleTaskActivity extends Activity {
         }
     }
 
-    private void startUploadFile(FileInfo fileInfo) {
-        UploadFileThread uploadFileThread = new UploadFileThread(fileInfo, getApplicationContext());
-        uploadFileThread.setListener(mUploadListener);
-        uploadFileThread.start();
+    private class AudioControlTask extends AsyncTask<Void, Void, Uri> {
+
+        private String oldPath;
+        private String newPath;
+
+        public AudioControlTask(String oldPath, String newPath) {
+            this.oldPath = oldPath;
+            this.newPath = newPath;
+        }
+
+        @Override
+        protected Uri doInBackground(Void... voids) {
+            if ( new File(newPath).exists()) {
+                return null;
+            }
+            FileOperationUtils.copyFile(oldPath, newPath);
+            return Uri.parse(newPath);
+        }
+
+        @Override
+        protected void onPostExecute(Uri uri) {
+            super.onPostExecute(uri);
+            if (uri != null) {
+                mGridAudios.addView(createAudioView(newPath), mGridAudios.getChildCount());
+                // upload audio to server
+                FileInfo fileInfo = new FileInfo(ClientGlobal.getUserId(), mTask.getId(), newPath, false, 0, mTask.getTaskFlowTimes());
+                mUploadFileDao.insertUploadFileInfo(fileInfo);
+                UploadFileSingleton.getInstance().upLoadFile(fileInfo);
+            }
+        }
+    }
+
+    private class ImageSaveTask extends AsyncTask<Void, Void, Uri> {
+
+        private String oldPath;
+        private String newPath;
+
+        public ImageSaveTask(String oldPath, String newPath) {
+            this.oldPath = oldPath;
+            this.newPath = newPath;
+        }
+
+        @Override
+        protected Uri doInBackground(Void... voids) {
+            String name = FileOperationUtils.getFileNameByPath(oldPath);
+            final String newPath = mTaskFilePath + "/" + name;
+            if ( new File(newPath).exists()) {
+                return null;
+            }
+            Bitmap bitmap = FileOperationUtils.compressImageBySrc(oldPath);
+            FileOperationUtils.saveBitmapToFile(bitmap, newPath);
+            return Uri.parse(newPath);
+        }
+
+        @Override
+        protected void onPostExecute(Uri uri) {
+            super.onPostExecute(uri);
+            if (uri != null) {
+                mGridImages.addView(createImageView(newPath), mGridImages.getChildCount());
+                // upload image to server
+                FileInfo fileInfo = new FileInfo(ClientGlobal.getUserId(), mTask.getId(), newPath, true, 0, mTask.getTaskFlowTimes());
+                mUploadFileDao.insertUploadFileInfo(fileInfo);
+                UploadFileSingleton.getInstance().upLoadFile(fileInfo);
+            }
+        }
     }
 
 }

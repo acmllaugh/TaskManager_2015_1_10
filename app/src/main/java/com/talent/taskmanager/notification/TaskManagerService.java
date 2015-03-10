@@ -9,7 +9,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.location.Location;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -24,16 +23,16 @@ import com.coal.black.bc.socket.client.returndto.TaskQryUserNewTaskCountResult;
 import com.talent.taskmanager.Constants;
 import com.talent.taskmanager.R;
 import com.talent.taskmanager.Utils;
-import com.talent.taskmanager.dada.UploadFileDao;
+import com.talent.taskmanager.data.UploadFileDao;
 import com.talent.taskmanager.file.FileInfo;
-import com.talent.taskmanager.file.UploadFileThread;
+import com.talent.taskmanager.file.UploadFileCallback;
+import com.talent.taskmanager.file.UploadFileSingleton;
 import com.talent.taskmanager.location.BaiduLocationManager;
 import com.talent.taskmanager.location.LocationManager;
 import com.coal.black.bc.socket.client.handlers.UserSignHandler;
 import com.coal.black.bc.socket.client.returndto.SignInResult;
 import com.coal.black.bc.socket.dto.SignInDto;
 import com.coal.black.bc.socket.enums.SignInType;
-import com.talent.taskmanager.network.NetworkState;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,7 +58,6 @@ public class TaskManagerService extends Service {
     private int mUserID;
     private boolean mServiceIsRunning;
     private UploadFileDao mUploadFileDao;
-    private UploadFileListener mUploadListener = null;
     private int mUploadFileCountDown;
 
     @Override
@@ -99,7 +97,7 @@ public class TaskManagerService extends Service {
         mBaiduLocationManager = new BaiduLocationManager(getApplicationContext());
         mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mUploadFileDao = new UploadFileDao(getApplicationContext());
-        mUploadListener = new UploadFileListener();
+        UploadFileSingleton.getInstance().setListener(new UploadFileCallback(mUploadFileDao));
     }
 
     private void registerToTimeCount() {
@@ -295,10 +293,9 @@ public class TaskManagerService extends Service {
             FileInfo fileInfo = mUploadFileDao.getUnfinishedFiles();
             if (fileInfo != null) {
                 //TODO: Check out what task flow times mean.
+                Log.d("Chris", "uploadFileIfNeed, Ready to upload: " + fileInfo.getFilePath());
                 fileInfo.setTaskFlowTimes(1);
-                UploadFileThread uploadFileThread = new UploadFileThread(fileInfo, getApplicationContext());
-                uploadFileThread.setListener(mUploadListener);
-                uploadFileThread.start();
+                UploadFileSingleton.getInstance().upLoadFile(fileInfo);
             }
         } else {
             mUploadFileCountDown--;
@@ -306,18 +303,4 @@ public class TaskManagerService extends Service {
 
     }
 
-    private class UploadFileListener implements UploadFileThread.UploadResultListener {
-
-        @Override
-        public void onUploadSucceed(FileInfo fileInfo) {
-            Log.d("Chris", "update status, before: unfinished count = " + mUploadFileDao.getUnfinishedFilesCount());
-            mUploadFileDao.updateUploadStatus(fileInfo.getFilePath());
-            Log.d("Chris", "update status, " + fileInfo.getFilePath());
-            Log.d("Chris", "update status, after: unfinished count = " + mUploadFileDao.getUnfinishedFilesCount());
-        }
-
-        @Override
-        public void onUploadFailed(FileInfo fileInfo) {
-        }
-    }
 }

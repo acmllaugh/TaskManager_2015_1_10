@@ -45,7 +45,8 @@
     <string name="connection_out_of_time">Connection ran out of time, please try latter again.</string>
     <string name="identity_card">Identity Card:</string>
     <string name="bankCard">Bank Card:</string>
-    <string name="card_name">Card owner:</string>
+    <string name="bank_name">Bank Name:</string>
+    <string name="card_name">Card Owner:</string>
     <string name="task_memo">Memo:</string>
     <string name="case_amount">Case Amount:</string>
     <string name="has_payed">Has Paid:</string>
@@ -102,5 +103,12 @@
     <string name="loading_now">Loading...</string>
     <string name="max_num_toast">You can only upload 9 pictures once.</string>
     <string name="max_num_record_toast">You can only upload %d audios once.</string>
+    <string name="has_into_queue_toast">Has added into upload queue.</string>
+    <string name="app_update_title">App update info</string>
+    <string name="app_update_message">Current version is old, please click to update.</string>
+    <string name="update">Update</string>
+    <string name="app_updating">Application is updating</string>
+    <string name="app_cancel_update">Cancel updating</string>
+    <string name="edit_report">Edit report</string>
 
 </resources>
