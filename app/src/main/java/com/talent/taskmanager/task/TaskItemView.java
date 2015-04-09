@@ -43,7 +43,7 @@ public class TaskItemView extends RelativeLayout {
     }
 
     public void bindModel(TaskDto task) {
-        mTaskTitleTextView.setText(task.getName());
+        mTaskTitleTextView.setText(task.getCardOwnedName());
         mTaskDateTextView.setText(Utils.getDateStringFromLong(task.getGrantTime(), mContext));
         mContactInfoTextView.setText(task.getContactInfo());
         mAddressTextView.setText(task.getAddress());
