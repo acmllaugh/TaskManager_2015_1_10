@@ -330,9 +330,9 @@ public class SingleTaskActivity extends Activity {
         mNeedVisitAgainSwitch = (Switch) view.findViewById(R.id.switch_continue_visit);
         mActualVisitorEditText = (EditText) view.findViewById(R.id.edit_actual_visitor);
         mTaskCommitEditText = (EditText) view.findViewById(R.id.edit_visit_report);
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
+//        Thread thread = new Thread(new Runnable() {
+//            @Override
+//            public void run() {
                 try {
                     int userID = ClientGlobal.getUserId();
                     Integer taskID = mTask.getId();
@@ -349,9 +349,9 @@ public class SingleTaskActivity extends Activity {
                 } finally {
                     mCommitInfoDAO.close();
                 }
-            }
-        });
-        thread.start();
+//            }
+//        });
+//        thread.start();
     }
 
     private void doCommitTask(final boolean needVisitAgain, final String actualVisitor, final String taskCommit) {
